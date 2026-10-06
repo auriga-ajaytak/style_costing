@@ -3,7 +3,7 @@ app_title = "Style Costing"
 app_publisher = "Auriga IT"
 app_description = "Apparel style master and style costing for ERPNext"
 app_email = "ajay@aurigait.com"
-app_license = "mit"
+app_license = "gpl-3.0"
 
 # Apps
 # ------------------

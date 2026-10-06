@@ -180,4 +180,5 @@ that an injected parent name is rejected.
 
 ## License
 
-MIT
+GNU General Public License v3.0 — see [license.txt](license.txt). The same
+licence as ERPNext, which this app extends.

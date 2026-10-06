@@ -207,7 +207,7 @@ production, lab testing and planning. Seven ship with default data.
 | Migration patches | **none** | required before any upgrade |
 | Server-side costing API | **none** | all computation is client-side |
 | CI | **none** | tests exist but never run automatically |
-| Licence file | **empty** | blocks distribution |
+| Licence file | ✅ GPL-3.0 | — |
 
 ---
 
@@ -316,7 +316,7 @@ and a product.
 
 ### Phase 0 — Make it installable *(prerequisite for everything)*
 
-- Populate the licence file; confirm the licence in `pyproject.toml` and README agree
+- ~~Populate the licence file; confirm the licence in `pyproject.toml` and README agree~~ ✅ done — GPL-3.0
 - ~~Align repo name with app name~~ ✅ done — `style_costing` throughout
 - Write migration patches: the historical duplicate DocType removal, orphan
   workspace links, the app and module rename, renamed fields — every existing
@@ -405,7 +405,8 @@ a single demo call.
 
 1. **Positioning** — standalone apparel costing module, or one component of a
    wider apparel suite? This determines whether the Item override stays.
-2. **Licence** — MIT (adoption) or commercial (revenue)? Blocks Phase 0.
+2. ~~**Licence** — MIT (adoption) or commercial (revenue)?~~ ✅ **Decided** —
+   GPL-3.0, the same licence as ERPNext, whose `Item` class this app subclasses.
 3. **Scope boundary** — does the module stop at the sales order, or extend into
    production planning and shop-floor execution?
 4. **Multi-currency depth** — is a single exchange rate per style enough, or is
