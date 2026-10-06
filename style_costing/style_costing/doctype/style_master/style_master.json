@@ -17,6 +17,7 @@
   "item",
   "style_category",
   "naming_series",
+  "company",
   "style_number",
   "style_master_name",
   "merchandiser",
@@ -742,6 +743,14 @@
    "fieldtype": "Table",
    "label": "Template",
    "options": "Style Lab Template"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "remember_last_selected_value": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -764,11 +773,45 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Costing Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Merchandiser",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Production Planner"
   }
  ],
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "style_master_name"
+ "title_field": "style_master_name",
+ "track_changes": 1
 }

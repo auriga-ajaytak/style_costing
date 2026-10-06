@@ -35,6 +35,13 @@ override_doctype_class = {
 	"Item": "style_costing.docevents.item.StyleItem",
 }
 
+# Installation
+# ------------
+# Only one app's Item controller wins; say so when it is not this one.
+
+after_install = "style_costing.setup.warn_on_item_override_conflict"
+after_migrate = ["style_costing.setup.warn_on_item_override_conflict"]
+
 # Document Events
 # ---------------
 # Hook on document methods and events

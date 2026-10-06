@@ -2,14 +2,22 @@
 # See license.txt
 """End-to-end checks for the v13 -> v16 port of Style Master."""
 
+from unittest.mock import patch
+
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from style_costing import queries
+from style_costing import queries, setup
 from style_costing.style_costing.doctype.fabric_process_route import (
 	fabric_process_route as fpr,
 )
 
+from style_costing.style_costing.report.fabric_and_trim_consumption.fabric_and_trim_consumption import (
+	execute as consumption,
+)
+from style_costing.style_costing.report.style_costing_summary.style_costing_summary import (
+	execute as costing_summary,
+)
 from style_costing.style_costing.doctype.style_costing_settings.style_costing_settings import (
 	get_style_defaults,
 )
@@ -185,6 +193,70 @@ class TestStyleMaster(IntegrationTestCase):
 		self.assertEqual([row["cost_head"] for row in defaults["cost_heads"]], ["COMMISSION"])
 		self.assertEqual(defaults["cost_heads"][0]["rate_our"], 10)
 
+	def test_item_codes_can_be_left_to_erpnext(self):
+		self.addCleanup(_set_setting, "keep_erpnext_item_codes", 0)
+		_set_setting("keep_erpnext_item_codes", 1)
+		item = frappe.get_doc(
+			{
+				"doctype": "Item",
+				"item_code": "SMC-KEPT-CODE",
+				"item_name": "SMC Kept Code",
+				"item_group": self.fabric_group,
+				"stock_uom": "Meter",
+				"is_stock_item": 0,
+				"composition": "100% Cotton",
+			}
+		).insert()
+		self.assertEqual(item.name, "SMC-KEPT-CODE")
+
+	# --- item override clash ------------------------------------------------
+	def test_no_conflict_when_only_this_app_overrides_item(self):
+		self.assertIsNone(setup.get_item_override_conflict())
+
+	def test_conflict_reported_when_another_app_wins_item(self):
+		hooks = {"Item": [setup.ITEM_CONTROLLER, "other_app.overrides.OtherItem"]}
+		with patch.object(frappe, "get_hooks", return_value=hooks):
+			self.assertIn("other_app.overrides.OtherItem", setup.get_item_override_conflict())
+
+	def test_conflict_reported_when_this_app_wins_item(self):
+		hooks = {"Item": ["other_app.overrides.OtherItem", setup.ITEM_CONTROLLER]}
+		with patch.object(frappe, "get_hooks", return_value=hooks):
+			self.assertIn("ignored", setup.get_item_override_conflict())
+
+	# --- roles ------------------------------------------------------------
+	def test_roles_and_change_tracking(self):
+		meta = frappe.get_meta("Style Master")
+		self.assertTrue(meta.track_changes)
+		self.assertTrue(frappe.get_meta("Operation Bulletin").track_changes)
+		by_role = {p.role: p for p in meta.permissions}
+		self.assertTrue(by_role["Costing Manager"].submit)
+		self.assertTrue(by_role["Merchandiser"].write)
+		self.assertFalse(by_role["Merchandiser"].submit)
+		self.assertFalse(by_role["Production Planner"].write)
+		for role in ("Costing Manager", "Merchandiser", "Production Planner"):
+			self.assertTrue(frappe.db.exists("Role", role), role)
+
+	def test_style_master_has_a_company(self):
+		self.assertEqual(frappe.get_meta("Style Master").get_field("company").options, "Company")
+
+	# --- reports ----------------------------------------------------------
+	def test_style_costing_summary_report(self):
+		style = self._build("Style Master")
+		style.db_set("cost_price_our", 400)
+		_columns, data = costing_summary({"customer": self.customer})
+		row = next(r for r in data if r.name == style.name)
+		self.assertEqual((row.margin, row.margin_percent), (100, 20))
+
+	def test_fabric_and_trim_consumption_report(self):
+		style = self._build("Style Master")
+		_columns, data = consumption({"style": style.name})
+		self.assertEqual(
+			[(r["material"], r["item"], r["total_req_qty"]) for r in data],
+			[("Fabric", self.fabric_item, 1500), ("Trims", self.trim_item, 8000)],
+		)
+		_columns, data = consumption({"style": style.name, "material": "Trims"})
+		self.assertEqual([r["item"] for r in data], [self.trim_item])
+
 	# --- helpers ----------------------------------------------------------
 	def _build(self, doctype):
 		return frappe.get_doc(
@@ -237,8 +309,12 @@ class TestStyleMaster(IntegrationTestCase):
 
 
 def _set_series(series):
+	_set_setting("style_naming_series", series)
+
+
+def _set_setting(fieldname, value):
 	settings = frappe.get_doc("Style Costing Settings")
-	settings.style_naming_series = series
+	settings.set(fieldname, value)
 	settings.save()
 
 

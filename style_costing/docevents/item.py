@@ -24,6 +24,8 @@ DEFAULT_ITEM_CODE_PREFIX = "I-"
 class StyleItem(Item):
 	def autoname(self):
 		super().autoname()
+		if frappe.db.get_single_value("Style Costing Settings", "keep_erpnext_item_codes", cache=True):
+			return
 		self.set_item_code()
 		self.name = self.item_code
 

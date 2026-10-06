@@ -198,11 +198,11 @@ production, lab testing and planning. Six ship with default data.
 |---|---|---|
 | DocTypes | 61 | — |
 | Print formats | 1 | buyer-facing cost sheet, tech pack, OB |
-| Reports | **0** | see §4.2 |
+| Reports | 2 | see §4.2 |
 | Dashboard charts | **0** | see §4.2 |
 | Workflows | **0** | costing approval |
 | Notifications | **0** | T&A milestones, approvals |
-| Roles | **System Manager only** | 4 role profiles |
+| Roles | 3 + System Manager | Buyer (read-only) |
 | Settings single | ✅ Style Costing Settings | base currency, precision |
 | Migration patches | 2 | one per schema change from here on |
 | Server-side costing API | **none** | all computation is client-side |
@@ -334,21 +334,27 @@ style without touching code or asking the vendor.
 
 ### Phase 1 — Make it correct
 
-- Extend `Other Cost.charge_on` to all five bases and implement each
-- Convert fabric/trim source from Select to a master with an `is_import` flag
-- Add pack ratio to Fabric and Trims
-- Add `company` to Style Master and filter masters by it
-- Set field-level precision on all amount fields
-- Detect and handle the Item override collision
+- ⏸ Extend `Other Cost.charge_on` to all five bases and implement each — *parked, §8.1*
+- ⏸ Convert fabric/trim source from Select to a master with an `is_import` flag — *parked, §8.1*
+- ⏸ Add pack ratio to Fabric and Trims — *parked, §8.1*
+- ~~Add `company` to Style Master~~ ✅ done. The masters carry no company, so
+  there is nothing to filter by it yet.
+- ⏸ Set field-level precision on all amount fields — *parked, §8.1*
+- ~~Detect and handle the Item override collision~~ ✅ done — warned at install
+  and migrate and on the settings page; "Keep ERPNext Item Codes" turns this
+  app's item naming off.
 
 **Done when:** a production cost sheet from any garment exporter can be
 reproduced exactly, out of the box, with no Customize Form changes.
 
 ### Phase 2 — Make it a product
 
-- Four role profiles: Merchandiser, Costing Manager, Production Planner, Buyer (read-only)
-- Permission rules per role on every DocType
-- `track_changes` on Style Master and Operation Bulletin
+- ~~Roles: Merchandiser, Costing Manager, Production Planner~~ ✅ done.
+  **Buyer (read-only) is not built**: Style Master shows our cost beside the
+  buyer's on every row, so a read-only buyer would see our costs. It needs
+  field-level permissions first.
+- ~~Permission rules per role on every DocType~~ ✅ done
+- ~~`track_changes` on Style Master and Operation Bulletin~~ ✅ done
 - Costing approval workflow (Draft → Costed → Approved → Quoted)
 - Setup wizard, including the `group_category` tagging step
 - Onboarding checklist and in-app help
@@ -357,8 +363,11 @@ reproduced exactly, out of the box, with no Customize Form changes.
 
 ### Phase 3 — Make it defensible
 
-- Server-side costing engine (§4.1)
-- Reports and dashboard charts (§4.2)
+- ⏸ Server-side costing engine (§4.1) — *parked, §8.1*
+- Reports and dashboard charts (§4.2) — ✅ Style Costing Summary (covers the
+  buyer-wise register and margin analysis through its filters) and Fabric and
+  Trim Consumption. Both read stored values only. Charts, version comparison
+  and reconciliation still to do.
 - BOM generation from a style (§3.6)
 - Costing versions with comparison
 - BOM ↔ costing reconciliation report
@@ -420,6 +429,12 @@ a single demo call.
    abstraction is needed for non-Indian deployments?
 
 ### 8.1 Open findings in the costing code — to discuss
+
+**Standing rule (product owner, 2026-10-06):** nothing that changes a computed
+number is built until the whole module has been tested and the change is asked
+for specifically. Parked on that basis: `charge_on` bases, the source master,
+pack ratio, field-level precision, efficiency in the sewing rate, the
+server-side costing engine, quantity-break pricing and the cost sheet importer.
 
 Found while building Style Costing Settings. Neither is changed yet; both
 belong to Phase 1.
