@@ -96,6 +96,7 @@ style_costing.style_form = {
             num = Math.round(num + "e" + decimalPlaces);
             return Number(num + "e" + -decimalPlaces);
         }
+		frm.trigger('loadStyleDefaults');
 		frm.set_query("fabric_name","fabric_table", function(doc, cdt, cdn){
 			return {
 				"query":"style_costing.queries.fabric_item_group_wise_items"
@@ -1347,6 +1348,13 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 			},
 			smv_cost: function(frm, cdt, cdn){
 				// set_final_mf_rate(frm,cdt, cdn);
+			},
+			smv_table_add: function(frm, cdt, cdn){
+				let efficiency = (frm.style_defaults || {}).efficiency;
+				if(efficiency){
+					locals[cdt][cdn].efficiency_cost = efficiency;
+					frm.refresh_field('smv_table');
+				}
 			}
 		  });
 
@@ -1379,6 +1387,11 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 					// if(row.based_on == 'SMV'){
 					// 	df.read_only = 1;
 					// }
+					let mf_row = locals[cdt][cdn];
+					let style_rate = (frm.style_defaults || {}).style_rate;
+					if(mf_row.based_on == 'SMV' && style_rate && !mf_row.rate_our){
+						mf_row.rate_our = style_rate;
+					}
 					set_final_mf_rate(frm,cdt, cdn);
 					frm.getCostingTable(frm);
 					frm.refresh_field('manufacturing_cost');
@@ -1700,6 +1713,27 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 	},
 	fabric_for_process:function(frm){
 		frm.showProcessRoute(frm);
+	},
+	// Defaults from Style Costing Settings: new rows read them off
+	// frm.style_defaults, and a new style starts with the default cost heads.
+	loadStyleDefaults:function(frm){
+		frm.style_defaults = {};
+		frappe.call({
+			method: "style_costing.style_costing.doctype.style_costing_settings.style_costing_settings.get_style_defaults",
+			callback: function(r){
+				frm.style_defaults = r.message || {};
+				let cost_heads = frm.style_defaults.cost_heads || [];
+				if(frm.is_new() && !(frm.doc.other_cost || []).length && cost_heads.length){
+					cost_heads.forEach(function(row){
+						frm.add_child('other_cost', row);
+					});
+					frm.refresh_field('other_cost');
+					if(frm.getCostingTable){
+						frm.getCostingTable(frm);
+					}
+				}
+			}
+		});
 	},
 	syncSmvPrice:function(frm){
 		if(typeof frm.is_new() !== 'undefined' && frm.is_new() !== 'undefined'){

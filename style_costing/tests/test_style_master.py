@@ -10,6 +10,10 @@ from style_costing.style_costing.doctype.fabric_process_route import (
 	fabric_process_route as fpr,
 )
 
+from style_costing.style_costing.doctype.style_costing_settings.style_costing_settings import (
+	get_style_defaults,
+)
+
 LINK_QUERY_ARGS = {"txt": "", "searchfield": "name", "start": 0, "page_len": 20}
 
 # This app overrides Item.autoname, so every Item gets a generated code
@@ -154,6 +158,33 @@ class TestStyleMaster(IntegrationTestCase):
 		self.assertEqual(len(rows) % 3, 0)
 		self.assertTrue(any(r["category"] == "Total" for r in rows))
 
+	# --- settings ---------------------------------------------------------
+	def test_style_is_named_from_the_neutral_default_series(self):
+		self.assertTrue(self._build("Style Master").name.startswith("STY-"))
+
+	def test_settings_series_names_new_styles(self):
+		settings = frappe.get_doc("Style Costing Settings")
+		self.addCleanup(_set_series, settings.style_naming_series)
+		_set_series("SMCT-.####")
+		name = self._build("Style Master").name
+		self.assertTrue(name.startswith("SMCT-"), name)
+
+	def test_settings_reject_an_invalid_series(self):
+		settings = frappe.get_doc("Style Costing Settings")
+		settings.style_naming_series = "NO DOT ####"
+		self.assertRaises(frappe.ValidationError, settings.save)
+
+	def test_style_defaults_come_from_settings(self):
+		settings = frappe.get_doc("Style Costing Settings")
+		settings.default_style_rate = 2.5
+		settings.default_efficiency = 60
+		settings.set("default_cost_heads", [{"cost_head": "COMMISSION", "based_on": "Rate", "rate_our": 10}])
+		settings.save()
+		defaults = get_style_defaults()
+		self.assertEqual((defaults["style_rate"], defaults["efficiency"]), (2.5, 60))
+		self.assertEqual([row["cost_head"] for row in defaults["cost_heads"]], ["COMMISSION"])
+		self.assertEqual(defaults["cost_heads"][0]["rate_our"], 10)
+
 	# --- helpers ----------------------------------------------------------
 	def _build(self, doctype):
 		return frappe.get_doc(
@@ -203,6 +234,12 @@ class TestStyleMaster(IntegrationTestCase):
 				"size": [{"size": "M"}, {"size": "L"}],
 			}
 		).insert()
+
+
+def _set_series(series):
+	settings = frappe.get_doc("Style Costing Settings")
+	settings.style_naming_series = series
+	settings.save()
 
 
 def _mk(doctype, **kwargs):

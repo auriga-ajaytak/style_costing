@@ -203,7 +203,7 @@ production, lab testing and planning. Seven ship with default data.
 | Workflows | **0** | costing approval |
 | Notifications | **0** | T&A milestones, approvals |
 | Roles | **System Manager only** | 4 role profiles |
-| Settings single | **none** | all configuration is hardcoded |
+| Settings single | ✅ Style Costing Settings | base currency, precision |
 | Migration patches | **none** | required before any upgrade |
 | Server-side costing API | **none** | all computation is client-side |
 | CI | **none** | tests exist but never run automatically |
@@ -219,7 +219,7 @@ These are **not** cosmetic. Each one is something a second customer hits on day 
 
 | Gap | Required |
 |---|---|
-| Naming series is `CMV-STYLE-.YYYY.-` — the original client's initials | Configurable series via a settings single; neutral default such as `STY-.YYYY.-.####` |
+| ~~Naming series is `CMV-STYLE-.YYYY.-` — the original client's initials~~ | ✅ **Resolved** — default is `STY-.YYYY.-.####`, changeable in Style Costing Settings |
 | Seven fixture DocTypes ship that client's master data (their merchandiser names, their cost heads) | Split into *structural* defaults (safe, generic) and an *optional* demo dataset installed on request |
 | ~~Repo name does not match app name~~ | ✅ **Resolved** — app, module and repo are all `style_costing` / Style Costing. `bench get-app <url>` now resolves without an explicit name argument. |
 
@@ -321,9 +321,9 @@ and a product.
 - Write migration patches: the historical duplicate DocType removal, orphan
   workspace links, the app and module rename, renamed fields — every existing
   install must upgrade cleanly
-- De-brand the naming series; introduce **Style Costing Settings**
-  (naming series, default style rate, default efficiency, base currency,
-  precision, default cost heads)
+- ~~De-brand the naming series; introduce **Style Costing Settings**~~ ✅ done —
+  naming series, default style rate, default efficiency, default cost heads.
+  Base currency comes from the Company; precision is a Phase 1 item.
 - Split fixtures into structural defaults and an optional demo dataset
 
 **Done when:** a stranger can `bench get-app`, `bench install-app`, and create a
@@ -415,3 +415,18 @@ a single demo call.
    existing install upgrade in place?
 6. **Localisation** — tax handling is currently GST/HSN-shaped. How much
    abstraction is needed for non-Indian deployments?
+
+### 8.1 Open findings in the costing code — to discuss
+
+Found while building Style Costing Settings. Neither is changed yet; both
+belong to Phase 1.
+
+1. **Efficiency is never used.** §2.2 gives the sewing rate as
+   `style_rate × smv ÷ efficiency`, but `set_final_mf_rate` in `style_form.js`
+   computes `rate × smv` only. The SMV row's `efficiency_cost` is stored and
+   ignored, so the Default Efficiency setting is a prefill with no effect on
+   cost yet.
+2. **Percentage cost heads only work for one name.** A percentage in Other Cost
+   is applied only when the cost head is literally named `COMMISSION`, and
+   always on the sales price target (`update_rate_our_oc`). Any other head with
+   "Percentage" selected calculates nothing.

@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "creation": "2026-10-06 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_section",
+  "style_naming_series",
+  "costing_defaults_section",
+  "default_style_rate",
+  "column_break_costing",
+  "default_efficiency",
+  "default_cost_heads_section",
+  "default_cost_heads"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_section",
+   "fieldtype": "Section Break",
+   "label": "Naming"
+  },
+  {
+   "default": "STY-.YYYY.-.####",
+   "description": "Series used to number new Style Masters, e.g. STY-.YYYY.-.#### gives STY-2026-0001. Existing styles keep their names.",
+   "fieldname": "style_naming_series",
+   "fieldtype": "Data",
+   "label": "Style Naming Series",
+   "reqd": 1
+  },
+  {
+   "fieldname": "costing_defaults_section",
+   "fieldtype": "Section Break",
+   "label": "Costing Defaults"
+  },
+  {
+   "description": "Pre-filled as the rate on a Manufacturing Cost row when it is based on SMV.",
+   "fieldname": "default_style_rate",
+   "fieldtype": "Float",
+   "label": "Default Style Rate",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_costing",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Pre-filled as the efficiency on a new SMV row.",
+   "fieldname": "default_efficiency",
+   "fieldtype": "Float",
+   "label": "Default Efficiency",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "default_cost_heads_section",
+   "fieldtype": "Section Break",
+   "label": "Default Cost Heads"
+  },
+  {
+   "description": "Copied into Other Cost on every new Style Master.",
+   "fieldname": "default_cost_heads",
+   "fieldtype": "Table",
+   "label": "Default Cost Heads",
+   "options": "Other Cost"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-06 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Style Costing",
+ "name": "Style Costing Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

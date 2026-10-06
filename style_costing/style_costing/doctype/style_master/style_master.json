@@ -373,10 +373,11 @@
    "label": "Pcs. per Pack"
   },
   {
+   "default": "STY-.YYYY.-.####",
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series",
-   "options": "CMV-STYLE-.YYYY.-",
+   "options": "STY-.YYYY.-.####",
    "reqd": 1
   },
   {
