@@ -3,7 +3,7 @@ name = "style_costing"
 authors = [
     { name = "Auriga IT", email = "ajay@aurigait.com"}
 ]
-description = "Apparel style master and style costing for ERPNext (ported from CMV ERP Style Master Addon)"
+description = "Apparel style master and style costing for ERPNext"
 requires-python = ">=3.14"
 readme = "README.md"
 license = { file = "license.txt" }

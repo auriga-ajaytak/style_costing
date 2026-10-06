@@ -204,7 +204,7 @@ production, lab testing and planning. Six ship with default data.
 | Notifications | **0** | T&A milestones, approvals |
 | Roles | **System Manager only** | 4 role profiles |
 | Settings single | ✅ Style Costing Settings | base currency, precision |
-| Migration patches | **none** | required before any upgrade |
+| Migration patches | 2 | one per schema change from here on |
 | Server-side costing API | **none** | all computation is client-side |
 | CI | **none** | tests exist but never run automatically |
 | Licence file | ✅ GPL-3.0 | — |
@@ -318,9 +318,12 @@ and a product.
 
 - ~~Populate the licence file; confirm the licence in `pyproject.toml` and README agree~~ ✅ done — GPL-3.0
 - ~~Align repo name with app name~~ ✅ done — `style_costing` throughout
-- Write migration patches: the historical duplicate DocType removal, orphan
-  workspace links, the app and module rename, renamed fields — every existing
-  install must upgrade cleanly
+- ~~Write migration patches: the historical duplicate DocType removal, orphan
+  workspace links, the app and module rename, renamed fields~~ ✅ closed —
+  a clean break was chosen (§8, question 5), so pre-rename installs are not
+  upgraded in place. Two patches cover what a current install needs: the
+  legacy naming-series setter and the corrected fixture names. From here on,
+  every schema change ships with its own patch.
 - ~~De-brand the naming series; introduce **Style Costing Settings**~~ ✅ done —
   naming series, default style rate, default efficiency, default cost heads.
   Base currency comes from the Company; precision is a Phase 1 item.
@@ -411,8 +414,8 @@ a single demo call.
    production planning and shop-floor execution?
 4. **Multi-currency depth** — is a single exchange rate per style enough, or is
    rate-per-material-origin required?
-5. **Backward compatibility** — is a clean break acceptable, or must every
-   existing install upgrade in place?
+5. ~~**Backward compatibility** — is a clean break acceptable, or must every
+   existing install upgrade in place?~~ ✅ **Decided** — clean break.
 6. **Localisation** — tax handling is currently GST/HSN-shaped. How much
    abstraction is needed for non-Indian deployments?
 
