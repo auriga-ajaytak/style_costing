@@ -59,7 +59,7 @@ doc_events = {
 # --------
 # Structural defaults only: generic garment-industry masters every install
 # needs. Site-specific data such as merchandisers is not shipped; sample
-# records for trials live in style_costing/demo. The v13 app also exported a
+# records for trials live in style_costing/demo and install from the settings page. The v13 app also exported a
 # site-wide dump of all 34 Workspaces, which would overwrite the standard
 # ERPNext ones - the Styling workspace is a proper app workspace here instead.
 

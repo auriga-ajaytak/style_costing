@@ -44,6 +44,24 @@ onto Style Master, whose own `field_order` had drifted — Buyer, Style Name and
 Series had ended up under Value Addition while the Style Details and Logistics
 sections rendered empty.
 
+**Style Costing Settings** — one page for the style naming series, the defaults
+a new style starts from (style rate, efficiency, cost heads), whether this app
+names Items, the optional costing approval workflow, and demo data.
+
+**Roles** — Costing Manager, Merchandiser and Production Planner. Only a Costing
+Manager can submit a style. These cover this app's DocTypes; users still need
+ERPNext roles for Item, Customer and Quotation.
+
+**Costing approval workflow** — off by default. Switched on in the settings, it
+runs Draft → Costed → Approved → Quoted and replaces Submit and Cancel on Style
+Master.
+
+**Reports** — *Style Costing Summary* (cost, target price and margin per style,
+by buyer, season, segment or merchandiser) and *Fabric and Trim Consumption*.
+
+**Print formats** — *Style Costing Sheet*, and *Buyer Cost Sheet*, which prints
+the buyer columns only.
+
 **Item extensions** — 51 custom fields and 16 property setters covering fabric
 construction, GSM, composition, weave, trims attributes, item references and a
 generated QR code, plus custom fields on Brand, Item Group, Item Barcode and
@@ -158,7 +176,8 @@ was not carried over.
 
 **Every Item gets a generated code.** The `StyleItem` override replaces
 `item_code` on *every* Item, even when one is typed in — this is v13 behaviour,
-kept as-is. It means an Item cannot be created with a chosen code while this app
+kept as the default. Tick **Keep ERPNext Item Codes** in Style Costing Settings
+to turn it off. It means an Item cannot be created with a chosen code while this app
 is installed, so data imports that rely on specific item codes, and ERPNext's own
 shared test records (`_Test Item` and friends), do not work unchanged. The app's
 test suite opts out of those shared records for this reason.

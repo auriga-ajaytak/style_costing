@@ -6,6 +6,8 @@ from frappe.custom.doctype.property_setter.property_setter import make_property_
 from frappe.model.document import Document
 from frappe.model.naming import NamingSeries
 
+from style_costing import approval
+
 # Other Cost columns carried from the settings onto a new style
 COST_HEAD_FIELDS = (
 	"cost_head",
@@ -38,6 +40,8 @@ class StyleCostingSettings(Document):
 		# clear_cache leaves this request's new-document template, which still
 		# carries the previous default series.
 		frappe.local.new_doc_templates.pop("Style Master", None)
+
+		approval.sync(self.enable_approval_workflow)
 
 
 @frappe.whitelist()

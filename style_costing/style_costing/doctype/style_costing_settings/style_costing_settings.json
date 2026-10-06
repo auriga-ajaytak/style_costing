@@ -6,6 +6,8 @@
  "field_order": [
   "naming_section",
   "style_naming_series",
+  "approval_section",
+  "enable_approval_workflow",
   "item_section",
   "keep_erpnext_item_codes",
   "costing_defaults_section",
@@ -13,7 +15,9 @@
   "column_break_costing",
   "default_efficiency",
   "default_cost_heads_section",
-  "default_cost_heads"
+  "default_cost_heads",
+  "demo_section",
+  "demo_records"
  ],
  "fields": [
   {
@@ -75,6 +79,32 @@
    "fieldname": "keep_erpnext_item_codes",
    "fieldtype": "Check",
    "label": "Keep ERPNext Item Codes"
+  },
+  {
+   "fieldname": "approval_section",
+   "fieldtype": "Section Break",
+   "label": "Approval"
+  },
+  {
+   "default": "0",
+   "description": "Adds a workflow to Style Master: Draft → Costed → Approved → Quoted. A Merchandiser marks a style Costed; a Costing Manager approves it, sends it back, marks it Quoted or cancels it. While this is on, the workflow buttons replace Submit and Cancel.",
+   "fieldname": "enable_approval_workflow",
+   "fieldtype": "Check",
+   "label": "Enable Costing Approval Workflow"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "demo_section",
+   "fieldtype": "Section Break",
+   "label": "Demo Data"
+  },
+  {
+   "description": "Records created by Install Demo Data, so Remove Demo Data deletes exactly those.",
+   "fieldname": "demo_records",
+   "fieldtype": "Code",
+   "label": "Installed Demo Records",
+   "options": "JSON",
+   "read_only": 1
   }
  ],
  "issingle": 1,

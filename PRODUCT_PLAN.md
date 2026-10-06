@@ -197,16 +197,16 @@ production, lab testing and planning. Six ship with default data.
 | | Built | Missing |
 |---|---|---|
 | DocTypes | 61 | — |
-| Print formats | 1 | buyer-facing cost sheet, tech pack, OB |
+| Print formats | 2 | tech pack, OB |
 | Reports | 2 | see §4.2 |
 | Dashboard charts | **0** | see §4.2 |
-| Workflows | **0** | costing approval |
+| Workflows | 1 (opt-in) | — |
 | Notifications | **0** | T&A milestones, approvals |
 | Roles | 3 + System Manager | Buyer (read-only) |
 | Settings single | ✅ Style Costing Settings | base currency, precision |
 | Migration patches | 2 | one per schema change from here on |
 | Server-side costing API | **none** | all computation is client-side |
-| CI | **none** | tests exist but never run automatically |
+| CI | workflow added | not yet seen to pass |
 | Licence file | ✅ GPL-3.0 | — |
 
 ---
@@ -355,7 +355,7 @@ reproduced exactly, out of the box, with no Customize Form changes.
   field-level permissions first.
 - ~~Permission rules per role on every DocType~~ ✅ done
 - ~~`track_changes` on Style Master and Operation Bulletin~~ ✅ done
-- Costing approval workflow (Draft → Costed → Approved → Quoted)
+- ~~Costing approval workflow (Draft → Costed → Approved → Quoted)~~ ✅ done — opt-in from the settings
 - Setup wizard, including the `group_category` tagging step
 - Onboarding checklist and in-app help
 
@@ -377,11 +377,11 @@ reproduced exactly, out of the box, with no Customize Form changes.
 ### Phase 4 — Make it sellable
 
 - Quantity-break pricing
-- Buyer-facing cost sheet print format using the existing buyer columns
+- ~~Buyer-facing cost sheet print format using the existing buyer columns~~ ✅ done — line items and the sales price; no buyer total, because none is stored
 - Cost sheet importer — map a customer's own spreadsheet columns onto the style
-- CI running the test suite against Frappe v16
-- Public documentation, changelog, semantic versioning
-- Demo dataset installable and removable in one action
+- CI running the test suite against Frappe v16 — ✅ workflow added, not yet seen to pass on GitHub
+- Public documentation, changelog, semantic versioning — ✅ changelog started; documentation is the README so far
+- ~~Demo dataset installable and removable in one action~~ ✅ done — masters only, no sample style
 
 **Done when:** a prospect's own cost sheet can be imported and reproduced inside
 a single demo call.

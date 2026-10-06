@@ -5,9 +5,10 @@
 from unittest.mock import patch
 
 import frappe
+from frappe.model.workflow import apply_workflow
 from frappe.tests import IntegrationTestCase
 
-from style_costing import queries, setup
+from style_costing import approval, demo, queries, setup
 from style_costing.style_costing.doctype.fabric_process_route import (
 	fabric_process_route as fpr,
 )
@@ -214,13 +215,11 @@ class TestStyleMaster(IntegrationTestCase):
 		self.assertIsNone(setup.get_item_override_conflict())
 
 	def test_conflict_reported_when_another_app_wins_item(self):
-		hooks = {"Item": [setup.ITEM_CONTROLLER, "other_app.overrides.OtherItem"]}
-		with patch.object(frappe, "get_hooks", return_value=hooks):
+		with _item_overrides(setup.ITEM_CONTROLLER, "other_app.overrides.OtherItem"):
 			self.assertIn("other_app.overrides.OtherItem", setup.get_item_override_conflict())
 
 	def test_conflict_reported_when_this_app_wins_item(self):
-		hooks = {"Item": ["other_app.overrides.OtherItem", setup.ITEM_CONTROLLER]}
-		with patch.object(frappe, "get_hooks", return_value=hooks):
+		with _item_overrides("other_app.overrides.OtherItem", setup.ITEM_CONTROLLER):
 			self.assertIn("ignored", setup.get_item_override_conflict())
 
 	# --- roles ------------------------------------------------------------
@@ -238,6 +237,60 @@ class TestStyleMaster(IntegrationTestCase):
 
 	def test_style_master_has_a_company(self):
 		self.assertEqual(frappe.get_meta("Style Master").get_field("company").options, "Company")
+
+	# --- approval workflow ------------------------------------------------
+	def test_approval_workflow_is_off_until_enabled(self):
+		self.assertFalse(frappe.db.get_value("Workflow", approval.WORKFLOW, "is_active"))
+
+	def test_approval_workflow_runs_draft_to_quoted(self):
+		self.addCleanup(_set_setting, "enable_approval_workflow", 0)
+		_set_setting("enable_approval_workflow", 1)
+		style = self._build("Style Master")
+		self.assertEqual(style.workflow_state, "Draft")
+		for action, state, docstatus in (
+			("Mark Costed", "Costed", 0),
+			("Send Back", "Draft", 0),
+			("Mark Costed", "Costed", 0),
+			("Approve", "Approved", 1),
+			("Mark Quoted", "Quoted", 1),
+			("Cancel", "Cancelled", 2),
+		):
+			style = apply_workflow(style, action)
+			self.assertEqual((style.workflow_state, style.docstatus), (state, docstatus))
+
+		_set_setting("enable_approval_workflow", 0)
+		self.assertFalse(frappe.db.get_value("Workflow", approval.WORKFLOW, "is_active"))
+
+	def test_merchandiser_cannot_approve(self):
+		allowed = {
+			(t.action, t.allowed) for t in frappe.get_doc(_workflow_doc()).transitions
+		}
+		self.assertIn(("Mark Costed", "Merchandiser"), allowed)
+		self.assertNotIn(("Approve", "Merchandiser"), allowed)
+
+	# --- buyer cost sheet -------------------------------------------------
+	def test_buyer_cost_sheet_shows_no_company_figures(self):
+		style = self._build("Style Master")
+		style.fabric_table[0].db_set({"rate_buyer": 131.25, "total_amt_buyer": 987.65})
+		html = frappe.get_print("Style Master", style.name, print_format="Buyer Cost Sheet")
+		self.assertIn("131.25", html)
+		self.assertIn("987.65", html)
+		# our fabric rate and amount from _build, whatever the number format
+		self.assertNotIn("120.00", html)
+		self.assertNotIn("89,000", html)
+
+	# --- demo data --------------------------------------------------------
+	def test_demo_data_installs_and_removes_cleanly(self):
+		self.assertEqual(demo.install(), 10)
+		self.assertTrue(frappe.db.exists("Merchandiser", "Demo Merchandiser 1"))
+		fabric = frappe.db.get_value("Item", {"item_name": "Demo Cotton Poplin"}, "name")
+		self.assertTrue(fabric.startswith("F-"), fabric)
+		self.assertRaises(frappe.ValidationError, demo.install)
+
+		self.assertEqual(demo.remove(), [])
+		self.assertFalse(frappe.db.exists("Item", fabric))
+		self.assertFalse(frappe.db.exists("Item Group", "Demo Fabric"))
+		self.assertFalse(frappe.db.exists("Merchandiser", "Demo Merchandiser 1"))
 
 	# --- reports ----------------------------------------------------------
 	def test_style_costing_summary_report(self):
@@ -306,6 +359,28 @@ class TestStyleMaster(IntegrationTestCase):
 				"size": [{"size": "M"}, {"size": "L"}],
 			}
 		).insert()
+
+
+def _item_overrides(*controllers):
+	"""Pretend these apps override Item, leaving every other hook alone."""
+	get_hooks = frappe.get_hooks
+
+	def fake(hook=None, *args, **kwargs):
+		if hook == "override_doctype_class":
+			return {"Item": list(controllers)}
+		return get_hooks(hook, *args, **kwargs)
+
+	return patch.object(frappe, "get_hooks", side_effect=fake)
+
+
+def _workflow_doc():
+	"""The workflow as it would be created, without touching the site."""
+	return {
+		"doctype": "Workflow",
+		"transitions": [
+			{"state": s, "action": a, "next_state": n, "allowed": r} for s, a, n, r in approval.TRANSITIONS
+		],
+	}
 
 
 def _set_series(series):
