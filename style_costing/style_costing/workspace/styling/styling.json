@@ -365,7 +365,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Reports",
-   "link_count": 2,
+   "link_count": 3,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -388,6 +388,18 @@
    "label": "Fabric and Trim Consumption",
    "link_count": 0,
    "link_to": "Fabric and Trim Consumption",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Style Master",
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "BOM Costing Reconciliation",
+   "link_count": 0,
+   "link_to": "BOM Costing Reconciliation",
    "link_type": "Report",
    "onboard": 0,
    "report_ref_doctype": "Style Master",

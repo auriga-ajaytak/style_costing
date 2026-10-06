@@ -198,7 +198,7 @@ production, lab testing and planning. Six ship with default data.
 |---|---|---|
 | DocTypes | 61 | — |
 | Print formats | 2 | tech pack, OB |
-| Reports | 2 | see §4.2 |
+| Reports | 3 | see §4.2 |
 | Dashboard charts | **0** | see §4.2 |
 | Workflows | 1 (opt-in) | — |
 | Notifications | **0** | T&A milestones, approvals |
@@ -368,9 +368,9 @@ reproduced exactly, out of the box, with no Customize Form changes.
   buyer-wise register and margin analysis through its filters) and Fabric and
   Trim Consumption. Both read stored values only. Charts, version comparison
   and reconciliation still to do.
-- BOM generation from a style (§3.6)
+- ~~BOM generation from a style (§3.6)~~ ✅ done — a draft BOM per garment item linked to the style. Every variant gets the same materials; size- and colour-specific rows are not split out yet.
 - Costing versions with comparison
-- BOM ↔ costing reconciliation report
+- ~~BOM ↔ costing reconciliation report~~ ✅ done
 
 **Done when:** the module does things a competitor cannot assemble from stock ERPNext.
 

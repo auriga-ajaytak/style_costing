@@ -8,11 +8,14 @@ import frappe
 from frappe.model.workflow import apply_workflow
 from frappe.tests import IntegrationTestCase
 
-from style_costing import approval, demo, queries, setup
+from style_costing import approval, bom, demo, queries, setup
 from style_costing.style_costing.doctype.fabric_process_route import (
 	fabric_process_route as fpr,
 )
 
+from style_costing.style_costing.report.bom_costing_reconciliation.bom_costing_reconciliation import (
+	execute as reconciliation,
+)
 from style_costing.style_costing.report.fabric_and_trim_consumption.fabric_and_trim_consumption import (
 	execute as consumption,
 )
@@ -291,6 +294,58 @@ class TestStyleMaster(IntegrationTestCase):
 		self.assertFalse(frappe.db.exists("Item", fabric))
 		self.assertFalse(frappe.db.exists("Item Group", "Demo Fabric"))
 		self.assertFalse(frappe.db.exists("Merchandiser", "Demo Merchandiser 1"))
+
+	# --- BOM generation ---------------------------------------------------
+	def test_boms_are_generated_and_reconcile(self):
+		style = self._build("Style Master")
+		self.assertRaises(frappe.ValidationError, bom.generate_boms, style.name)
+
+		garment_group = _mk(
+			"Item Group",
+			item_group_name="SMC Test Garment",
+			parent_item_group="All Item Groups",
+			is_group=0,
+			group_category="Garment",
+		)
+		garment = frappe.get_doc(
+			{
+				"doctype": "Item",
+				"item_name": f"SMC Garment {style.name}",
+				"item_group": garment_group,
+				"stock_uom": "Nos",
+				"is_stock_item": 0,
+				"composition": "100% Cotton",
+				"style_master": style.name,
+			}
+		).insert()
+
+		created = bom.generate_boms(style.name)["created"]
+		self.assertEqual(len(created), 1)
+		doc = frappe.get_doc("BOM", created[0])
+		self.assertEqual((doc.item, doc.docstatus), (garment.name, 0))
+		self.assertEqual(
+			{row.item_code: row.qty for row in doc.items},
+			{self.fabric_item: 1.5, self.trim_item: 8},
+		)
+
+		# a second run refreshes the draft instead of adding another BOM
+		self.assertEqual(bom.generate_boms(style.name), {"created": [], "updated": created, "skipped": []})
+
+		_columns, data = reconciliation({"style": style.name})
+		self.assertEqual({r["status"] for r in data}, {"Match"})
+
+		doc.reload()
+		doc.items[0].qty = 1.6
+		doc.remove(doc.items[1])
+		doc.save()
+		_columns, data = reconciliation({"style": style.name, "differences_only": 1})
+		self.assertEqual(
+			{r["material"]: r["status"] for r in data},
+			{self.fabric_item: "Quantity differs", self.trim_item: "Only in costing"},
+		)
+
+		doc.submit()
+		self.assertEqual(bom.generate_boms(style.name)["skipped"], [garment.name])
 
 	# --- reports ----------------------------------------------------------
 	def test_style_costing_summary_report(self):

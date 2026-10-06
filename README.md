@@ -57,7 +57,16 @@ runs Draft → Costed → Approved → Quoted and replaces Submit and Cancel on 
 Master.
 
 **Reports** — *Style Costing Summary* (cost, target price and margin per style,
-by buyer, season, segment or merchandiser) and *Fabric and Trim Consumption*.
+by buyer, season, segment or merchandiser), *Fabric and Trim Consumption*, and
+*BOM Costing Reconciliation* (materials in the BOM but not the costing, in the
+costing but not the BOM, and quantity differences).
+
+**BOM generation** — *Create → BOMs* on a Style Master drafts an ERPNext BOM for
+every garment Item whose *Style Master* field points at the style: the variants
+of a linked template, or a linked item with none. The per-garment quantity is
+the row's consumption (for trims, times pieces per garment), without extras,
+wastage or samples. Running it again refreshes the drafts; an item that already
+has a submitted BOM is left alone.
 
 **Print formats** — *Style Costing Sheet*, and *Buyer Cost Sheet*, which prints
 the buyer columns only.

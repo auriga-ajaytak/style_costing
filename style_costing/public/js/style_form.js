@@ -24,6 +24,26 @@ style_costing.on_child = function (doctype, handlers) {
 style_costing.style_form = {
 	refresh:function(frm){
 		$('.page-wrapper .page-content').find('.layout-side-section').css('display','none');
+		if(!frm.is_new() && frm.doc.docstatus < 2){
+			frm.add_custom_button(__('BOMs'), function(){
+				frappe.call({
+					method: "style_costing.bom.generate_boms",
+					args: {style: frm.doc.name},
+					freeze: true,
+					callback: function(r){
+						let res = r.message || {};
+						let lines = [];
+						if((res.created || []).length) lines.push(__('Created: {0}', [res.created.join(', ')]));
+						if((res.updated || []).length) lines.push(__('Updated: {0}', [res.updated.join(', ')]));
+						if((res.skipped || []).length) lines.push(__('Left alone, already has a submitted BOM: {0}', [res.skipped.join(', ')]));
+						frappe.msgprint({title: __('BOMs'), message: lines.join('<br>'), indicator: 'green'});
+					}
+				});
+			}, __('Create'));
+			frm.add_custom_button(__('BOM Costing Reconciliation'), function(){
+				frappe.set_route('query-report', 'BOM Costing Reconciliation', {style: frm.doc.name});
+			}, __('View'));
+		}
 		cur_frm.get_field('size').grid.grid_buttons.css({'visibility':'hidden'});
 		cur_frm.fields_dict['size'].grid.wrapper.find('.btn-open-row').hide();
 
