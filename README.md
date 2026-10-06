@@ -1,4 +1,4 @@
-# Style Master Costing
+# Style Costing
 
 Apparel **style master** and **style costing** for ERPNext — style definition, BOM
 (fabric + trims), process routes, tech packs, markers, SMV/production cost,
@@ -21,8 +21,8 @@ ERPNext v16**. Modelled on the style costing module of Visual Gems ERP.
 ## Install
 
 ```bash
-bench get-app style_master_costing <repo-url>
-bench --site <site> install-app style_master_costing
+bench get-app https://github.com/auriga-ajaytak/style_costing.git
+bench --site <site> install-app style_costing
 ```
 
 ## What the app adds
@@ -35,7 +35,7 @@ It carries 110 fields across 10 tabs: Style Details, Techpack, BOM, Marker,
 SMV / Production Cost, Value Addition / T&A, Logistics & Incentive Cost,
 Instructions, Sales Price Markup, Lab Test.
 
-v13 shipped a second DocType, **Style Master Costing**, that duplicated Style
+v13 shipped a second DocType, **Style Costing**, that duplicated Style
 Master field-for-field — the same 110 fields with identical properties, the same
 client script, the same costing template. Nothing referenced it: Quotation,
 Operation Bulletin, Design and Marker, the print format and the dashboard all
@@ -63,18 +63,18 @@ traces back to its style without duplicate entry.
 ## Layout
 
 ```
-style_master_costing/
+style_costing/
 ├── queries.py                      whitelisted link queries + meta helper
 ├── docevents/                      Item class override, Item/Quotation hooks
 ├── public/js/
 │   ├── style_form.js               Style Master client-side form logic
-│   ├── style_master_costing.bundle.js
+│   ├── style_costing.bundle.js
 │   ├── item.js, item_list.js, quotation.js
 ├── fixtures/                       master data (cost heads, seasons, segments, ...)
-└── style_master_costing/
+└── style_costing/
     ├── custom/                     Customize Form exports (Item, Brand, ...)
     ├── doctype/                    63 DocTypes
-    ├── print_format/               Style Master Costing Sheet
+    ├── print_format/               Style Costing Sheet
     └── workspace/styling/          the "Styling" workspace
 ```
 
@@ -103,7 +103,7 @@ fields and the overlay is gone.
 
 **One implementation instead of three.** v13 carried the same logic in
 `style_master.js` (1,900 lines), `fabric/fabric.js` (913 lines, layered onto
-Style Master through `doctype_js`) and `style_master_costing.js` (2,716 lines —
+Style Master through `doctype_js`) and `style_costing.js` (2,716 lines —
 the union of the first two). All three are now `public/js/style_form.js`, which
 both DocTypes register.
 
@@ -123,7 +123,7 @@ off disk, so Customize Form changes never reached the datatable. It now returns
 
 ### Bugs fixed in passing
 
-* `Style Master Costing` had two `amended_from` fields, the surviving one
+* `Style Costing` had two `amended_from` fields, the surviving one
   pointing at `Style Master`; amending produced a link to the wrong DocType.
 * The module name was split across `"CMV ERP Style Master Addon"` (51 DocTypes)
   and `"Cmv Erp Style Master Addon"` (11); `modules.txt` declared only the
@@ -170,7 +170,7 @@ in v13.
 ## Tests
 
 ```bash
-bench --site <site> run-tests --app style_master_costing
+bench --site <site> run-tests --app style_costing
 ```
 
 `doctype/style_master/test_style_master.py` covers the item-code series, the QR

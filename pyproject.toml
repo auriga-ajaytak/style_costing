@@ -1,5 +1,5 @@
 [project]
-name = "style_master_costing"
+name = "style_costing"
 authors = [
     { name = "Auriga IT", email = "ajay@aurigait.com"}
 ]
@@ -9,7 +9,7 @@ readme = "README.md"
 dynamic = ["version"]
 dependencies = [
     # "frappe~=16.0.0" # Installed and managed by bench.
-    "qrcode~=8.2",   # Item QR codes (style_master_costing.docevents.item)
+    "qrcode~=8.2",   # Item QR codes (style_costing.docevents.item)
 ]
 
 [build-system]
