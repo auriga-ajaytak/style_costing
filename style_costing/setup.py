@@ -38,7 +38,25 @@ def warn_on_item_override_conflict():
 		click.secho(f"style_costing: {message}", fg="yellow")
 
 
+def untagged_item_groups() -> int:
+	"""Leaf Item Groups with no Group Category. The Fabric and Trims pickers
+	on a style list items by that category, so items in these never appear."""
+	return frappe.db.count("Item Group", {"is_group": 0, "group_category": ("is", "not set")})
+
+
 @frappe.whitelist()
-def item_override_conflict():
+def setup_warnings():
+	"""What an administrator should know before the first style is built."""
 	frappe.only_for(("System Manager", "Costing Manager"))
-	return get_item_override_conflict()
+	warnings = []
+	conflict = get_item_override_conflict()
+	if conflict:
+		warnings.append(conflict)
+	untagged = untagged_item_groups()
+	if untagged:
+		warnings.append(
+			_(
+				"{0} Item Group(s) have no Group Category. Items in them will not appear in the Fabric and Trims pickers on a style until the group is tagged Fabric or Trims."
+			).format(untagged)
+		)
+	return warnings

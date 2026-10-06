@@ -1,0 +1,37 @@
+{
+ "allow_roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Costing Manager"
+  }
+ ],
+ "creation": "2026-10-06 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Module Onboarding",
+ "idx": 0,
+ "is_complete": 0,
+ "modified": "2026-10-06 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Style Costing",
+ "name": "Style Costing Onboarding",
+ "owner": "Administrator",
+ "steps": [
+  {
+   "step": "Review Style Costing Settings"
+  },
+  {
+   "step": "Tag Item Groups"
+  },
+  {
+   "step": "Create a Style Master"
+  },
+  {
+   "step": "View Style Costing Summary"
+  }
+ ],
+ "subtitle": "Settings, Item Groups, your first style.",
+ "success_message": "Style Costing is set up.",
+ "title": "Style Costing Setup"
+}

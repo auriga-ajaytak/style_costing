@@ -1,0 +1,34 @@
+{
+ "attach_print": 0,
+ "channel": "System Notification",
+ "condition": "doc.workflow_state == \"Costed\"",
+ "condition_type": "Python",
+ "creation": "2026-10-06 00:00:00.000000",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Style Master",
+ "enabled": 1,
+ "event": "Value Change",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<p>{{ _(\"Style\") }} <b>{{ doc.name }}</b> ({{ doc.style_master_name }}) {{ _(\"for\") }} {{ doc.customer }} {{ _(\"has been marked Costed and is waiting for approval.\") }}</p>\n",
+ "message_type": "HTML",
+ "method": "",
+ "minutes_offset": 0,
+ "modified": "2026-10-06 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Style Costing",
+ "name": "Style Awaiting Approval",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "Costing Manager"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender_email": "",
+ "subject": "{{ doc.name }} is costed and awaiting approval",
+ "value_changed": "workflow_state"
+}

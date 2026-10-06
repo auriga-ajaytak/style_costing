@@ -68,6 +68,11 @@ the row's consumption (for trims, times pieces per garment), without extras,
 wastage or samples. Running it again refreshes the drafts; an item that already
 has a submitted BOM is left alone.
 
+**Getting started** — the Fabric and Trims pickers on a style only list items
+whose Item Group has a *Group Category* of Fabric or Trims. On a site with an
+existing item catalogue, tag those groups first; Style Costing Settings shows
+how many are untagged, and the onboarding checklist walks through it.
+
 **Print formats** — *Style Costing Sheet*, and *Buyer Cost Sheet*, which prints
 the buyer columns only.
 

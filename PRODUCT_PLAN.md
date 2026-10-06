@@ -199,9 +199,9 @@ production, lab testing and planning. Six ship with default data.
 | DocTypes | 61 | — |
 | Print formats | 2 | tech pack, OB |
 | Reports | 3 | see §4.2 |
-| Dashboard charts | **0** | see §4.2 |
+| Dashboard charts | 3 | margin trend, cost-head contribution |
 | Workflows | 1 (opt-in) | — |
-| Notifications | **0** | T&A milestones, approvals |
+| Notifications | 2 (approval) | T&A milestones — the T&A rows hold days, not dates |
 | Roles | 3 + System Manager | Buyer (read-only) |
 | Settings single | ✅ Style Costing Settings | base currency, precision |
 | Migration patches | 2 | one per schema change from here on |
@@ -356,8 +356,7 @@ reproduced exactly, out of the box, with no Customize Form changes.
 - ~~Permission rules per role on every DocType~~ ✅ done
 - ~~`track_changes` on Style Master and Operation Bulletin~~ ✅ done
 - ~~Costing approval workflow (Draft → Costed → Approved → Quoted)~~ ✅ done — opt-in from the settings
-- Setup wizard, including the `group_category` tagging step
-- Onboarding checklist and in-app help
+- ~~Setup wizard, including the `group_category` tagging step~~ / ~~Onboarding checklist~~ ✅ done as a four-step Module Onboarding (settings, tag Item Groups, first style, summary report). The settings page also warns how many Item Groups have no category. In-app help beyond that is not written.
 
 **Done when:** a customer can deploy, configure and operate it without the vendor.
 

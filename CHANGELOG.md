@@ -16,6 +16,12 @@ All notable changes to Style Costing. Versions follow [Semantic Versioning](http
 - **BOM generation** — Create → BOMs on a Style Master drafts an ERPNext BOM for
   each garment Item linked to the style.
 - **Buyer Cost Sheet** print format — buyer columns only.
+- **Dashboard charts** on the Styling workspace — styles by buyer, season and
+  merchandiser.
+- **Notifications** — to Costing Managers when a style is marked Costed, and to
+  its owner when it is approved (in-app, with the approval workflow on).
+- **Onboarding** — a four-step checklist, and a warning on the settings page
+  when Item Groups have no Group Category.
 - **Demo data** — sample masters installed and removed from the settings page.
 - `company` on Style Master; change tracking on Style Master and Operation Bulletin.
 - A warning when another app also overrides the Item controller.

@@ -3,10 +3,8 @@
 
 frappe.ui.form.on("Style Costing Settings", {
 	refresh(frm) {
-		frappe.call("style_costing.setup.item_override_conflict").then((r) => {
-			if (r.message) {
-				frm.set_intro(r.message, "orange");
-			}
+		frappe.call("style_costing.setup.setup_warnings").then((r) => {
+			(r.message || []).forEach((warning) => frm.set_intro(warning, "orange"));
 		});
 
 		const installed = JSON.parse(frm.doc.demo_records || "[]").length;

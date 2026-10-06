@@ -225,6 +225,44 @@ class TestStyleMaster(IntegrationTestCase):
 		with _item_overrides("other_app.overrides.OtherItem", setup.ITEM_CONTROLLER):
 			self.assertIn("ignored", setup.get_item_override_conflict())
 
+	def test_untagged_item_groups_are_counted(self):
+		before = setup.untagged_item_groups()
+		# Group Category is mandatory, so only groups older than the app lack one
+		group = _mk(
+			"Item Group",
+			item_group_name="SMC Untagged",
+			parent_item_group="All Item Groups",
+			is_group=0,
+			group_category="Fabric",
+		)
+		frappe.db.set_value("Item Group", group, "group_category", None)
+		self.assertEqual(setup.untagged_item_groups(), before + 1)
+		self.assertTrue(any("Group Category" in w for w in setup.setup_warnings()))
+
+	# --- charts, notifications, onboarding --------------------------------
+	def test_standard_records_are_installed(self):
+		for doctype, name in (
+			("Dashboard Chart", "Styles by Buyer"),
+			("Dashboard Chart", "Styles by Season"),
+			("Dashboard Chart", "Styles by Merchandiser"),
+			("Notification", "Style Awaiting Approval"),
+			("Notification", "Style Approved"),
+			("Module Onboarding", "Style Costing Onboarding"),
+			("Onboarding Step", "Tag Item Groups"),
+		):
+			self.assertTrue(frappe.db.exists(doctype, name), f"{doctype} {name}")
+
+	def test_costed_style_notifies_the_costing_manager(self):
+		self.addCleanup(_set_setting, "enable_approval_workflow", 0)
+		_set_setting("enable_approval_workflow", 1)
+		manager = _mk_user("smc-costing-manager@example.com", "Costing Manager")
+		style = self._build("Style Master")
+		apply_workflow(style, "Mark Costed")
+		logs = frappe.get_all(
+			"Notification Log", filters={"document_name": style.name, "for_user": manager}, pluck="subject"
+		)
+		self.assertTrue(any("awaiting approval" in (s or "") for s in logs), logs)
+
 	# --- roles ------------------------------------------------------------
 	def test_roles_and_change_tracking(self):
 		meta = frappe.get_meta("Style Master")
@@ -414,6 +452,15 @@ class TestStyleMaster(IntegrationTestCase):
 				"size": [{"size": "M"}, {"size": "L"}],
 			}
 		).insert()
+
+
+def _mk_user(email, role):
+	if not frappe.db.exists("User", email):
+		user = frappe.get_doc(
+			{"doctype": "User", "email": email, "first_name": "SMC Test", "send_welcome_email": 0}
+		).insert()
+		user.add_roles(role)
+	return email
 
 
 def _item_overrides(*controllers):

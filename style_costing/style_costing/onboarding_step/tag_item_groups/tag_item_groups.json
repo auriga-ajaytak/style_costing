@@ -1,0 +1,21 @@
+{
+ "action": "Go to Page",
+ "action_label": "Open Item Groups",
+ "creation": "2026-10-06 00:00:00.000000",
+ "description": "The Fabric and Trims pickers on a style only list items whose Item Group has a Group Category of Fabric or Trims. Open each of your fabric, trim and garment groups and set its Group Category, or the pickers stay empty.",
+ "docstatus": 0,
+ "doctype": "Onboarding Step",
+ "idx": 1,
+ "is_complete": 0,
+ "is_single": 0,
+ "is_skipped": 0,
+ "modified": "2026-10-06 00:00:00.000000",
+ "modified_by": "Administrator",
+ "name": "Tag Item Groups",
+ "owner": "Administrator",
+ "path": "Tree/Item Group",
+ "show_form_tour": 0,
+ "show_full_form": 0,
+ "title": "Tag Item Groups with a Group Category",
+ "validate_action": 0
+}

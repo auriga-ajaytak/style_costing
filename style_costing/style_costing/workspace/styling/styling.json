@@ -1,7 +1,20 @@
 {
  "app": "style_costing",
- "charts": [],
- "content": "[{\"id\": \"smc_header_0\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Style Master &amp; Costing</b></span>\", \"col\": 12}}, {\"id\": \"smc_sc_item\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Item\", \"col\": 3}}, {\"id\": \"smc_sc_style\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Style Master\", \"col\": 3}}, {\"id\": \"smc_header_1\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Masters</b></span>\", \"col\": 12}}, {\"id\": \"smc_card_0\", \"type\": \"card\", \"data\": {\"card_name\": \"Style Master\", \"col\": 4}}, {\"id\": \"smc_card_1\", \"type\": \"card\", \"data\": {\"card_name\": \"Masters\", \"col\": 4}}, {\"id\": \"smc_card_2\", \"type\": \"card\", \"data\": {\"card_name\": \"Fabric & Trims\", \"col\": 4}}, {\"id\": \"smc_card_3\", \"type\": \"card\", \"data\": {\"card_name\": \"Costing\", \"col\": 4}}, {\"id\": \"smc_card_4\", \"type\": \"card\", \"data\": {\"card_name\": \"Lab Testing\", \"col\": 4}}, {\"id\": \"smc_card_5\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}]",
+ "charts": [
+  {
+   "chart_name": "Styles by Buyer",
+   "label": "Styles by Buyer"
+  },
+  {
+   "chart_name": "Styles by Season",
+   "label": "Styles by Season"
+  },
+  {
+   "chart_name": "Styles by Merchandiser",
+   "label": "Styles by Merchandiser"
+  }
+ ],
+ "content": "[{\"id\": \"smc_header_0\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Style Master &amp; Costing</b></span>\", \"col\": 12}}, {\"id\": \"smc_sc_item\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Item\", \"col\": 3}}, {\"id\": \"smc_sc_style\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Style Master\", \"col\": 3}}, {\"id\": \"smc_chart_0\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Styles by Buyer\", \"col\": 4}}, {\"id\": \"smc_chart_1\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Styles by Season\", \"col\": 4}}, {\"id\": \"smc_chart_2\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Styles by Merchandiser\", \"col\": 4}}, {\"id\": \"smc_header_1\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Masters</b></span>\", \"col\": 12}}, {\"id\": \"smc_card_0\", \"type\": \"card\", \"data\": {\"card_name\": \"Style Master\", \"col\": 4}}, {\"id\": \"smc_card_1\", \"type\": \"card\", \"data\": {\"card_name\": \"Masters\", \"col\": 4}}, {\"id\": \"smc_card_2\", \"type\": \"card\", \"data\": {\"card_name\": \"Fabric & Trims\", \"col\": 4}}, {\"id\": \"smc_card_3\", \"type\": \"card\", \"data\": {\"card_name\": \"Costing\", \"col\": 4}}, {\"id\": \"smc_card_4\", \"type\": \"card\", \"data\": {\"card_name\": \"Lab Testing\", \"col\": 4}}, {\"id\": \"smc_card_5\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}]",
  "creation": "2026-01-01 00:00:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
