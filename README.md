@@ -70,7 +70,8 @@ style_costing/
 │   ├── style_form.js               Style Master client-side form logic
 │   ├── style_costing.bundle.js
 │   ├── item.js, item_list.js, quotation.js
-├── fixtures/                       master data (cost heads, seasons, segments, ...)
+├── fixtures/                       structural defaults (cost heads, seasons, segments, ...)
+├── demo/                           sample records for trials - not installed
 └── style_costing/
     ├── custom/                     Customize Form exports (Item, Brand, ...)
     ├── doctype/                    63 DocTypes

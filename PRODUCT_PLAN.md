@@ -190,7 +190,7 @@ of an input item to a finished material: sequence, process type, input/output
 item-colour-size, required qty, loss %, yarn conversion, rates.
 
 **Masters** — ~25 master DocTypes across style, fabric/trim technical, costing,
-production, lab testing and planning. Seven ship with default data.
+production, lab testing and planning. Six ship with default data.
 
 ### 2.5 What exists today vs. what a product needs
 
@@ -220,7 +220,7 @@ These are **not** cosmetic. Each one is something a second customer hits on day 
 | Gap | Required |
 |---|---|
 | ~~Naming series is `CMV-STYLE-.YYYY.-` — the original client's initials~~ | ✅ **Resolved** — default is `STY-.YYYY.-.####`, changeable in Style Costing Settings |
-| Seven fixture DocTypes ship that client's master data (their merchandiser names, their cost heads) | Split into *structural* defaults (safe, generic) and an *optional* demo dataset installed on request |
+| ~~Seven fixture DocTypes ship that client's master data (their merchandiser names, their cost heads)~~ | ✅ **Resolved** — six generic masters ship as fixtures; merchandisers moved to `demo/` with placeholder names. Installing the demo set in one action is Phase 4. |
 | ~~Repo name does not match app name~~ | ✅ **Resolved** — app, module and repo are all `style_costing` / Style Costing. `bench get-app <url>` now resolves without an explicit name argument. |
 
 ### 3.2 The costing model is too narrow for real cost sheets
@@ -324,7 +324,7 @@ and a product.
 - ~~De-brand the naming series; introduce **Style Costing Settings**~~ ✅ done —
   naming series, default style rate, default efficiency, default cost heads.
   Base currency comes from the Company; precision is a Phase 1 item.
-- Split fixtures into structural defaults and an optional demo dataset
+- ~~Split fixtures into structural defaults and an optional demo dataset~~ ✅ done
 
 **Done when:** a stranger can `bench get-app`, `bench install-app`, and create a
 style without touching code or asking the vendor.

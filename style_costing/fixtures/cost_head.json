@@ -55,12 +55,12 @@
   "parenttype": null
  },
  {
-  "cost_head_name": "GARMENT REJECTION",
+  "cost_head_name": "Garment Rejection",
   "description": null,
   "docstatus": 0,
   "doctype": "Cost Head",
   "modified": "2022-11-06 17:34:52.607613",
-  "name": "GARMENT REJECTION",
+  "name": "Garment Rejection",
   "parent": null,
   "parentfield": null,
   "parenttype": null
