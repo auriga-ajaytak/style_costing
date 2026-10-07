@@ -6,3 +6,4 @@
 # Patches added in this section will be executed after doctypes are migrated
 style_costing.patches.remove_legacy_style_series
 style_costing.patches.rename_misspelt_fixture_records
+style_costing.patches.create_role_profiles

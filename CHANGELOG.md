@@ -12,7 +12,10 @@ All notable changes to Style Costing. Versions follow [Semantic Versioning](http
   permissions on every DocType. Only a Costing Manager can submit a style.
 - **Costing approval workflow** (optional) — Draft → Costed → Approved → Quoted.
 - **Reports** — Style Costing Summary; Fabric and Trim Consumption; BOM Costing
-  Reconciliation.
+  Reconciliation; Style Order Tracking.
+- **Role profiles** — Style Merchandiser, Style Costing Manager and Style
+  Production Planner, each with the ERPNext roles it needs.
+- **Number cards** on the Styling workspace, and a user guide in `docs/`.
 - **BOM generation** — Create → BOMs on a Style Master drafts an ERPNext BOM for
   each garment Item linked to the style.
 - **Buyer Cost Sheet** print format — buyer columns only.

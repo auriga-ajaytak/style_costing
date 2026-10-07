@@ -8,6 +8,8 @@ price markup ladder.
 Ported from `cmv_erp_style_master_addon` (Frappe/ERPNext v13) to **Frappe v16 /
 ERPNext v16**. Modelled on the style costing module of Visual Gems ERP.
 
+See the [user guide](docs/user-guide.md) for setting up and running a style.
+
 ## Requirements
 
 | | |

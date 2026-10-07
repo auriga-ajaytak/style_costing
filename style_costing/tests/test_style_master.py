@@ -19,6 +19,9 @@ from style_costing.style_costing.report.bom_costing_reconciliation.bom_costing_r
 from style_costing.style_costing.report.fabric_and_trim_consumption.fabric_and_trim_consumption import (
 	execute as consumption,
 )
+from style_costing.style_costing.report.style_order_tracking.style_order_tracking import (
+	execute as order_tracking,
+)
 from style_costing.style_costing.report.style_costing_summary.style_costing_summary import (
 	execute as costing_summary,
 )
@@ -249,6 +252,7 @@ class TestStyleMaster(IntegrationTestCase):
 			("Notification", "Style Approved"),
 			("Module Onboarding", "Style Costing Onboarding"),
 			("Onboarding Step", "Tag Item Groups"),
+			("Number Card", "Styles in Progress"),
 		):
 			self.assertTrue(frappe.db.exists(doctype, name), f"{doctype} {name}")
 
@@ -402,6 +406,19 @@ class TestStyleMaster(IntegrationTestCase):
 		)
 		_columns, data = consumption({"style": style.name, "material": "Trims"})
 		self.assertEqual([r["item"] for r in data], [self.trim_item])
+
+	def test_style_order_tracking_report(self):
+		style = self._build("Style Master")
+		_columns, data = order_tracking({"customer": self.customer})
+		row = next(r for r in data if r.name == style.name)
+		self.assertEqual((row.status, row.sales_orders), ("Not Ordered", 0))
+		_columns, data = order_tracking({"customer": self.customer, "status": "Ordered"})
+		self.assertNotIn(style.name, [r.name for r in data])
+
+	def test_role_profiles_pair_app_and_erpnext_roles(self):
+		for profile, roles in setup.ROLE_PROFILES.items():
+			saved = {r.role for r in frappe.get_doc("Role Profile", profile).roles}
+			self.assertEqual(saved, set(roles), profile)
 
 	# --- helpers ----------------------------------------------------------
 	def _build(self, doctype):

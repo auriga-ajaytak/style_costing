@@ -197,8 +197,8 @@ production, lab testing and planning. Six ship with default data.
 | | Built | Missing |
 |---|---|---|
 | DocTypes | 61 | — |
-| Print formats | 2 | tech pack, OB |
-| Reports | 3 | see §4.2 |
+| Print formats | 2 | ⏭ tech pack and Operation Bulletin, both deferred (product owner, 2026-10-06) |
+| Reports | 4 | costing version comparison (deferred) |
 | Dashboard charts | 3 | margin trend, cost-head contribution |
 | Workflows | 1 (opt-in) | — |
 | Notifications | 2 (approval) | T&A milestones — the T&A rows hold days, not dates |
@@ -350,7 +350,8 @@ reproduced exactly, out of the box, with no Customize Form changes.
 ### Phase 2 — Make it a product
 
 - ~~Roles: Merchandiser, Costing Manager, Production Planner~~ ✅ done.
-  **Buyer (read-only) is not built**: Style Master shows our cost beside the
+  Role profiles pair each with the ERPNext roles it needs.
+  ⏭ **Buyer (read-only) is deferred**: Style Master shows our cost beside the
   buyer's on every row, so a read-only buyer would see our costs. It needs
   field-level permissions first.
 - ~~Permission rules per role on every DocType~~ ✅ done
@@ -367,8 +368,8 @@ reproduced exactly, out of the box, with no Customize Form changes.
   buyer-wise register and margin analysis through its filters) and Fabric and
   Trim Consumption. Both read stored values only. Charts, version comparison
   and reconciliation still to do.
-- ~~BOM generation from a style (§3.6)~~ ✅ done — a draft BOM per garment item linked to the style. Every variant gets the same materials; size- and colour-specific rows are not split out yet.
-- Costing versions with comparison
+- ~~BOM generation from a style (§3.6)~~ ✅ done — a draft BOM per garment item linked to the style. Every variant gets the same materials; ⏭ variant-specific BOMs (size and colour rows) are deferred.
+- ⏭ Costing versions with comparison — *deferred by the product owner; a snapshot inside the style is the recommended design*
 - ~~BOM ↔ costing reconciliation report~~ ✅ done
 
 **Done when:** the module does things a competitor cannot assemble from stock ERPNext.
@@ -379,7 +380,7 @@ reproduced exactly, out of the box, with no Customize Form changes.
 - ~~Buyer-facing cost sheet print format using the existing buyer columns~~ ✅ done — line items and the sales price; no buyer total, because none is stored
 - Cost sheet importer — map a customer's own spreadsheet columns onto the style
 - CI running the test suite against Frappe v16 — ✅ workflow added, not yet seen to pass on GitHub
-- Public documentation, changelog, semantic versioning — ✅ changelog started; documentation is the README so far
+- Public documentation, changelog, semantic versioning — ✅ changelog and a user guide (`docs/user-guide.md`)
 - ~~Demo dataset installable and removable in one action~~ ✅ done — masters only, no sample style
 
 **Done when:** a prospect's own cost sheet can be imported and reproduced inside
