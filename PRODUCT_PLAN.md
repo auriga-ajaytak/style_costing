@@ -9,11 +9,29 @@ industry**.
 | App | `style_costing` |
 | Module | Style Costing |
 | Repo | `github.com/auriga-ajaytak/style_costing` |
-| Current version | 0.0.1 |
+| Current version | 0.0.1 (unreleased work on `main`, see CHANGELOG.md) |
 | Platform | Frappe v16 · ERPNext v16 · Python ≥ 3.14 |
 | Dependency | ERPNext (`required_apps = ["erpnext"]`) |
-| Scale | 61 DocTypes · 3,691 lines client JS · 11 integration tests |
+| Scale | 62 DocTypes · 4 reports · 2 print formats · 3,745 lines client JS · 34 integration tests |
 | Target | Public release — any garment exporter or CMT manufacturer on ERPNext |
+
+### Status at a glance — 2026-10-07
+
+| Phase | State |
+|---|---|
+| 0 — Installable | ✅ Done. Not yet proven on a fresh site. |
+| 1 — Correct | Company field and Item override handling done. Everything that changes a computed number is **parked** (§8.1). |
+| 2 — A product | ✅ Roles, role profiles, permissions, change tracking, approval workflow, onboarding. Buyer role **deferred**. |
+| 3 — Defensible | Reports, charts, BOM generation and reconciliation done. Server-side costing **parked**; costing versions **deferred**. |
+| 4 — Sellable | Buyer cost sheet, CI, changelog, user guide, demo data done. Quantity breaks and the importer **parked**. |
+
+**Parked** means it changes costing arithmetic and waits for the product owner
+to test the module and ask for it. **Deferred** means the product owner has
+chosen to build it later: costing versions, the buyer role, the tech pack
+print format, variant-specific BOMs and all Operation Bulletin work.
+
+**Next:** the product owner tests the whole module on a clean site, then
+calculation changes are taken one at a time.
 
 ---
 

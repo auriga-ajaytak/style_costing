@@ -1,14 +1,26 @@
 # Style Costing
 
-Apparel **style master** and **style costing** for ERPNext — style definition, BOM
-(fabric + trims), process routes, tech packs, markers, SMV/production cost,
-value addition, time & action, lab testing, and a costing sheet with a sales
-price markup ladder.
+Costing for garment manufacturers and exporters, inside ERPNext.
 
-Ported from `cmv_erp_style_master_addon` (Frappe/ERPNext v13) to **Frappe v16 /
-ERPNext v16**. Modelled on the style costing module of Visual Gems ERP.
+A garment factory does not quote a product, it quotes a **style**: one design,
+for one buyer, in one season, with its own fabric and trim bill, sewing
+operations and margin. The quote goes out before any order exists. ERPNext has
+no place to build that quote. This app adds it.
 
-See the [user guide](docs/user-guide.md) for setting up and running a style.
+| You get | |
+|---|---|
+| **Style Master** | One document per style: buyer and style details, tech pack, fabric and trims, process routes, marker, SMV, value addition, time and action, lab tests |
+| **Costing sheet** | Per-piece cost built up from fabric, trims, manufacturing and other costs, against a sales price target, with a five-step markup ladder |
+| **Buyer view** | Company cost and buyer cost side by side on every row, and a *Buyer Cost Sheet* print that shows the buyer's side only |
+| **Approval** | An optional Draft → Costed → Approved → Quoted workflow, with notifications |
+| **Style to order** | Quote styles on a Quotation, trace Sales Order lines back to their style, and draft ERPNext BOMs from a style |
+| **Reports** | Costing summary and margin, fabric and trim consumption, BOM-versus-costing reconciliation, order tracking |
+| **Setup help** | A settings page, role profiles, an onboarding checklist and removable demo data |
+
+**New here? Read the [user guide](docs/user-guide.md).** It covers setup and a
+complete style, start to finish, in plain language.
+
+The rest of this page is for whoever installs and maintains the app.
 
 ## Requirements
 
@@ -25,43 +37,36 @@ See the [user guide](docs/user-guide.md) for setting up and running a style.
 ```bash
 bench get-app https://github.com/auriga-ajaytak/style_costing.git
 bench --site <site> install-app style_costing
+bench build --app style_costing
 ```
+
+Then open the **Styling** workspace and follow
+[Set up](docs/user-guide.md#1-set-up-once) in the user guide. The one step that
+cannot be skipped on a site with existing items is tagging Item Groups with a
+Group Category.
 
 ## What the app adds
 
-**61 DocTypes**, headed by one submittable master:
+**62 DocTypes.** Style Master is the only one most users open; it is
+submittable and carries 112 fields across 10 tabs. Around 25 are masters
+(seasons, segments, cost heads, lab tests, ...), one is the settings page, and
+the rest are the child tables behind Style Master's grids. Six masters ship
+with generic default records.
 
-* **Style Master** — the style, its BOM and its costing, used for buyer quoting.
+**Style Costing Settings** — the style naming series, the defaults a new style
+starts from (style rate, efficiency, cost heads), whether this app names Items,
+the approval workflow switch, and demo data. It also warns about anything that
+still needs setting up.
 
-It carries 110 fields across 10 tabs: Style Details, Techpack, BOM, Marker,
-SMV / Production Cost, Value Addition / T&A, Logistics & Incentive Cost,
-Instructions, Sales Price Markup, Lab Test.
-
-v13 shipped a second DocType, **Style Costing**, that duplicated Style
-Master field-for-field — the same 110 fields with identical properties, the same
-client script, the same costing template. Nothing referenced it: Quotation,
-Operation Bulletin, Design and Marker, the print format and the dashboard all
-point at Style Master. It was dropped, and its (correct) tab layout was moved
-onto Style Master, whose own `field_order` had drifted — Buyer, Style Name and
-Series had ended up under Value Addition while the Style Details and Logistics
-sections rendered empty.
-
-**Style Costing Settings** — one page for the style naming series, the defaults
-a new style starts from (style rate, efficiency, cost heads), whether this app
-names Items, the optional costing approval workflow, and demo data.
-
-**Roles** — Costing Manager, Merchandiser and Production Planner. Only a Costing
-Manager can submit a style. These cover this app's DocTypes; users still need
-ERPNext roles for Item, Customer and Quotation.
+**Roles and role profiles** — Costing Manager, Merchandiser and Production
+Planner. Only a Costing Manager can submit a style. The matching role profiles
+(Style Costing Manager, Style Merchandiser, Style Production Planner) add the
+ERPNext roles each person needs for items, buyers, quotations and BOMs.
 
 **Costing approval workflow** — off by default. Switched on in the settings, it
 runs Draft → Costed → Approved → Quoted and replaces Submit and Cancel on Style
-Master.
-
-**Reports** — *Style Costing Summary* (cost, target price and margin per style,
-by buyer, season, segment or merchandiser), *Fabric and Trim Consumption*, and
-*BOM Costing Reconciliation* (materials in the BOM but not the costing, in the
-costing but not the BOM, and quantity differences).
+Master. Costing Managers are notified when a style is marked Costed; its owner
+when it is approved.
 
 **BOM generation** — *Create → BOMs* on a Style Master drafts an ERPNext BOM for
 every garment Item whose *Style Master* field points at the style: the variants
@@ -70,13 +75,14 @@ the row's consumption (for trims, times pieces per garment), without extras,
 wastage or samples. Running it again refreshes the drafts; an item that already
 has a submitted BOM is left alone.
 
-**Getting started** — the Fabric and Trims pickers on a style only list items
-whose Item Group has a *Group Category* of Fabric or Trims. On a site with an
-existing item catalogue, tag those groups first; Style Costing Settings shows
-how many are untagged, and the onboarding checklist walks through it.
+**Reports** — *Style Costing Summary*, *Fabric and Trim Consumption*,
+*BOM Costing Reconciliation* and *Style Order Tracking*. All read stored values.
 
-**Print formats** — *Style Costing Sheet*, and *Buyer Cost Sheet*, which prints
-the buyer columns only.
+**Print formats** — *Style Costing Sheet* (internal) and *Buyer Cost Sheet*
+(buyer columns only).
+
+**Workspace** — "Styling": number cards, charts of styles by buyer, season and
+merchandiser, and links to every document, master and report.
 
 **Item extensions** — 51 custom fields and 16 property setters covering fabric
 construction, GSM, composition, weave, trims attributes, item references and a
@@ -105,15 +111,26 @@ style_costing/
 │   ├── style_costing.bundle.js
 │   ├── item.js, item_list.js, quotation.js
 ├── fixtures/                       structural defaults (cost heads, seasons, segments, ...)
-├── demo/                           sample records for trials - not installed
+├── approval.py                     the optional approval workflow
+├── bom.py                          BOM generation from a style
+├── setup.py                        install hooks, role profiles, setup warnings
+├── demo/                           sample records, installed from the settings page
+├── patches/                        migration patches
 └── style_costing/
     ├── custom/                     Customize Form exports (Item, Brand, ...)
-    ├── doctype/                    63 DocTypes
-    ├── print_format/               Style Costing Sheet
+    ├── doctype/                    62 DocTypes
+    ├── report/                     4 script reports
+    ├── print_format/               Style Costing Sheet, Buyer Cost Sheet
+    ├── dashboard_chart/, number_card/
+    ├── notification/               approval notifications
+    ├── module_onboarding/, onboarding_step/
     └── workspace/styling/          the "Styling" workspace
 ```
 
 ## Notes on the v13 → v16 port
+
+The app was ported from `cmv_erp_style_master_addon` (Frappe/ERPNext v13) and is
+modelled on the style costing module of Visual Gems ERP.
 
 ### Framework changes handled
 
@@ -130,6 +147,15 @@ style_costing/
 | Quotation `subscription_section`, `more_info` | `auto_repeat_section`, `more_info_tab` |
 
 ### Deliberate changes
+
+**One style DocType instead of two.** v13 shipped a second DocType, **Style Costing**, that duplicated Style
+Master field-for-field — the same 110 fields with identical properties, the same
+client script, the same costing template. Nothing referenced it: Quotation,
+Operation Bulletin, Design and Marker, the print format and the dashboard all
+point at Style Master. It was dropped, and its (correct) tab layout was moved
+onto Style Master, whose own `field_order` had drifted — Buyer, Style Name and
+Series had ended up under Value Addition while the Style Details and Logistics
+sections rendered empty.
 
 **Native tabs.** v13 layered a ~160-line jQuery overlay (`setupTabView`) on top
 of Section Breaks to fake tabs — it rewrote DOM classes, hid sections by hand and
@@ -209,10 +235,14 @@ in v13.
 bench --site <site> run-tests --app style_costing
 ```
 
-`doctype/style_master/test_style_master.py` covers the item-code series, the QR
-hook, insert/submit/cancel/amend on both style DocTypes, the tab structure, the
-`amended_from` fix, every whitelisted link query, process-route replacement, and
-that an injected parent name is rejected.
+`tests/test_style_master.py` holds 34 integration tests: item codes and the QR
+hook, the Style Master lifecycle and tab structure, every whitelisted link
+query, process routes, the settings, roles, the approval workflow, BOM
+generation and reconciliation, the reports, the buyer print format, demo data
+and the Item override check. They run on every push through GitHub Actions.
+
+The costing arithmetic itself runs in the browser (`public/js/style_form.js`)
+and is not covered by these tests.
 
 ## License
 

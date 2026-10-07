@@ -62,7 +62,7 @@ def get_columns():
 			"fieldname": "merchandiser",
 			"label": _("Merchandiser"),
 			"fieldtype": "Link",
-			"options": "Merchandiser",
+			"options": "Employee",
 			"width": 130,
 		},
 		{"fieldname": "status", "label": _("Status"), "fieldtype": "Data", "width": 90},

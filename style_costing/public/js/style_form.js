@@ -968,6 +968,8 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 			if(frm.doc.trims_for_process !== 'undefined' || frm.doc.trims_for_process !== ''){
 				frm.clear_table('trims_process_route_table')
 				frappe.db.get_list('Trims Process Route',{
+					// a child table can only be listed through its parent
+					parent_doctype:'Style Master',
 					filters:{
 						"trim_name":frm.doc.trims_for_process,
 						"parent":frm.doc.name
@@ -994,6 +996,8 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 				frm.clear_table('process_route_table')
 				// console.log("Enter process route");
 				frappe.db.get_list('Fabric Process Route',{
+					// a child table can only be listed through its parent
+					parent_doctype:'Style Master',
 					filters:{
 						"fabric_name":frm.doc.fabric_for_process,
 						"parent":frm.doc.name

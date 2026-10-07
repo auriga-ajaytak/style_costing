@@ -7,7 +7,7 @@ frappe.query_reports["Style Costing Summary"] = {
 		{ fieldname: "customer", label: __("Buyer"), fieldtype: "Link", options: "Customer" },
 		{ fieldname: "season", label: __("Season"), fieldtype: "Link", options: "Season" },
 		{ fieldname: "segment", label: __("Segment"), fieldtype: "Link", options: "Segment" },
-		{ fieldname: "merchandiser", label: __("Merchandiser"), fieldtype: "Link", options: "Merchandiser" },
+		{ fieldname: "merchandiser", label: __("Merchandiser"), fieldtype: "Link", options: "Employee" },
 		{
 			fieldname: "status",
 			label: __("Status"),
