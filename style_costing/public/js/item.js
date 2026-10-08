@@ -1,16 +1,9 @@
 frappe.ui.form.on('Item', {
     refresh:function(frm){        
-        if(!frm.is_new() && frm.doc.item_group !== ''){
-            set_item_sub_group(frm);
-            set_item_group_category(frm);
-        }
         showHideFixedAssetsCheck(frm);
         // get_fabric_segment(frm);
-        
-        frm.set_df_property('naming_series','hidden',1);
-        frm.set_df_property('item_code','hidden',1);
+
         frm.set_df_property('fabric_color','hidden',1);
-        frm.set_df_property('item_code','reqd',0);
 
         Object.keys(frm.html_datatable_arr).forEach(function(value, index, array){
             frm.get_docwise_columns(value); // setup table columns
@@ -20,15 +13,13 @@ frappe.ui.form.on('Item', {
         });
     },
     after_save:function(frm){
-        let successStr = 'Item created successfully.';
-        if(frm.doc.item_code !== ''){
-            successStr += ' Item Code - '+frm.doc.item_code;
+        // only fabric and trim items get a generated description worth showing
+        let successStr = '';
+        if(frm.doc.item_group_category == 'Fabric' && frm.doc.fabric_description){
+            successStr = 'Item Description - '+frm.doc.fabric_description;
         }
-        if(frm.doc.item_group_category == 'Fabric' && frm.doc.fabric_description !== ''){
-            successStr += ' Item Description - '+frm.doc.fabric_description;
-        }
-        if(frm.doc.item_group_category == 'Trims' && frm.doc.trim_description !== ''){
-            successStr += ' Item Description - '+frm.doc.trim_description;
+        if(frm.doc.item_group_category == 'Trims' && frm.doc.trim_description){
+            successStr = 'Item Description - '+frm.doc.trim_description;
         }
 
         if(successStr !== ''){
@@ -60,23 +51,6 @@ frappe.ui.form.on('Item', {
     onload:function(frm){
         show_fabric_fields(frm);
         
-        frm.fields_dict['item_group'].get_query = function(doc, cdt, cdn) {
-			return {
-				filters: [
-					['Item Group', 'parent_item_group', '=', "All Item Groups"],
-                    ['Item Group', 'docstatus', '!=', 2]
-				]
-			}
-		}
-
-        frm.fields_dict['brand'].get_query = function(doc, cdt, cdn) {
-			return {
-				filters: [
-					['Brand', 'is_customer_brand', '!=', 1]
-				]
-			}
-		}
-
         frappe.ui.form.on("Fabric Composition",{
             fabric_composition_add:function(frm, cdt,cdn){
                 fill_composition_field(frm);
@@ -354,7 +328,7 @@ frappe.ui.form.on('Item', {
 				row_data.is_splited = 0;
                 if(cell.column.id == 'fabric_name' || cell.column.id == 'trim_name'){
                     frappe.db.get_doc('Item', row_data[cell.column.id]).then(doc=>{
-                        row_data['category'] = doc.item_sub_group;
+                        row_data['category'] = doc.item_group;
                         row_data['hs_code'] = doc.gst_hsn_code;
                         row_data['description'] = doc.composition;
                         row_data['unit'] = doc.stock_uom;
@@ -572,9 +546,6 @@ frappe.ui.form.on('Item', {
             num = Math.round(num + "e" + decimalPlaces);
             return Number(num + "e" + -decimalPlaces);
         }
-    },
-    item_sub_group:function(frm){
-        set_item_group_category(frm);
     },
     fabric_structure:function(frm){
         setupFabricFieldsBySegment(frm);
@@ -881,11 +852,7 @@ function fill_composition_field(frm){
 frappe.ui.form.on('Item', 'item_group',
     function(frm, cdt, cdn){   
            
-        frappe.db.get_doc('Item Group',frm.doc.item_group).then(doc => {
-            frm.set_value('item_group_category',doc.group_category)
-        });	
         show_fabric_fields(frm)
-        set_item_sub_group(frm)
             
     }
 
@@ -920,11 +887,18 @@ function setupFabricFieldsBySegment(frm){
 }
 
 function show_fabric_fields(frm){
-    if(frm.doc.item_group){
-        frappe.db.get_value('Item Group', frm.doc.item_group, 'group_category').then(
-            doc=>{
+    // Fabric, Trims, Finished Goods or nothing, from the Item Groups listed in
+    // Style Costing Settings. An item outside them keeps the plain ERPNext form.
+    frappe.call({
+        method: "style_costing.item_types.get_item_type",
+        args: { item_group: frm.doc.item_group || "" }
+    }).then(
+            r=>{
+                let item_type = r.message || "";
+                frm.doc.item_group_category = item_type;
+                showHideFixedAssetsCheck(frm);
                 let hiddenProperty = 1;
-                if(doc.message.group_category == 'Fabric'){
+                if(item_type == 'Fabric'){
                     setupFabricFieldsBySegment(frm);
                     hiddenProperty = 0;
                     if(frm.doc.fabric_process){
@@ -940,7 +914,7 @@ function show_fabric_fields(frm){
                 frm.set_df_property("fabric_process_route", "hidden", hiddenProperty);
                 // frm.set_df_property("yarn_fabric_details", "hidden", hiddenProperty);
                 let hiddenTrim = 1;
-                if(doc.message.group_category == 'Trims'){
+                if(item_type == 'Trims'){
                     hiddenProperty = 0;
                     hiddenTrim = 0;
                 }
@@ -950,7 +924,6 @@ function show_fabric_fields(frm){
                
             }
         )
-    }
 }
 
 frappe.ui.form.on('Item', 'fabric_process',
@@ -985,48 +958,5 @@ function set_fabric_process_details(frm){
                 frm.refresh_field('process');
             }}
         })
-    }
-}
-// Set sub groups of Item group
-function set_item_sub_group(frm){
-
-    frappe.call({
-        method:"style_costing.docevents.item.get_item_sub_group",
-        args: {
-            "item_group": frm.doc.item_group
-        },
-        callback: function(r){
-            var grp_list = [];
-            r.message.forEach(function(grp){
-                grp_list.push(grp.name)
-            })
-            frm.set_df_property('item_sub_group', 'options', [""].concat(grp_list));
-            frm.refresh_field('item_sub_group');
-        }
-    })
-}
-
-function set_item_group_category(frm){
-    if(typeof frm.doc.item_sub_group !== 'undefined' && frm.doc.item_sub_group !== 'undefined'){
-        frappe.call({
-            method:"style_costing.docevents.item.get_item_sub_group",
-            args: {
-                "item_group":frm.doc.item_sub_group
-            },
-            callback: function(r){
-                var category_list = [];
-                r.message.forEach(function(category){
-                    category_list.push(category.name)
-                });
-                let hiddenProperty = 1;
-                if(category_list.length > 0){
-                    hiddenProperty = 0;
-                    frm.set_df_property('item_category', 'options', [""].concat(category_list));
-                }
-                frm.set_df_property("item_category", "hidden", hiddenProperty);
-
-                frm.refresh_field('item_category');
-            }
-        });
     }
 }

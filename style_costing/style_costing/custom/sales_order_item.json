@@ -17,7 +17,7 @@
    "description": "Fetched from the item. Traces this order line back to the style it was costed from.",
    "docstatus": 0,
    "dt": "Sales Order Item",
-   "fetch_from": "item_code.style_master",
+   "fetch_from": null,
    "fetch_if_empty": 0,
    "fieldname": "style_master",
    "fieldtype": "Link",

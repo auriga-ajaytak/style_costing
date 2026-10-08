@@ -2,13 +2,12 @@
 # See license.txt
 """End-to-end checks for the v13 -> v16 port of Style Master."""
 
-from unittest.mock import patch
-
 import frappe
 from frappe.model.workflow import apply_workflow
 from frappe.tests import IntegrationTestCase
 
-from style_costing import approval, bom, demo, queries, setup
+from style_costing import approval, bom, demo, item_types, queries, setup
+from style_costing.docevents.sales_order import style_for_item
 from style_costing.style_costing.doctype.fabric_process_route import (
 	fabric_process_route as fpr,
 )
@@ -31,10 +30,8 @@ from style_costing.style_costing.doctype.style_costing_settings.style_costing_se
 
 LINK_QUERY_ARGS = {"txt": "", "searchfield": "name", "start": 0, "page_len": 20}
 
-# This app overrides Item.autoname, so every Item gets a generated code
-# (F-0000001, T-0000001, ...). ERPNext's shared test records expect to keep the
-# codes they ask for (_Test Item and friends), so this suite opts out of them
-# and builds exactly the fixtures it needs.
+# The suite builds exactly the records it needs rather than pulling in
+# ERPNext's shared test records.
 EXTRA_TEST_RECORD_DEPENDENCIES = []
 
 
@@ -47,17 +44,16 @@ class TestStyleMaster(IntegrationTestCase):
 			item_group_name="SMC Test Fabric",
 			parent_item_group="All Item Groups",
 			is_group=0,
-			group_category="Fabric",
 		)
 		cls.trims_group = _mk(
 			"Item Group",
 			item_group_name="SMC Test Trims",
 			parent_item_group="All Item Groups",
 			is_group=0,
-			group_category="Trims",
 		)
 		cls.fabric_item = _mk(
 			"Item",
+			item_code="SMC-TEST-POPLIN",
 			item_name="SMC Test Poplin",
 			item_group=cls.fabric_group,
 			stock_uom="Meter",
@@ -66,6 +62,7 @@ class TestStyleMaster(IntegrationTestCase):
 		)
 		cls.trim_item = _mk(
 			"Item",
+			item_code="SMC-TEST-BUTTON",
 			item_name="SMC Test Button",
 			item_group=cls.trims_group,
 			stock_uom="Nos",
@@ -78,25 +75,60 @@ class TestStyleMaster(IntegrationTestCase):
 			item_group_name="SMC Test Garment",
 			parent_item_group="All Item Groups",
 			is_group=0,
-			group_category="Garment",
 		)
 		cls.garment_item = _mk(
 			"Item",
+			item_code="SMC-TEST-SHIRT",
 			item_name="SMC Test Shirt",
 			item_group=cls.garment_group,
 			stock_uom="Nos",
 			is_stock_item=0,
 			composition="100% Cotton",
 		)
+		_list_item_groups(
+			{cls.fabric_group: "Fabric", cls.trims_group: "Trims", cls.garment_group: "Finished Goods"}
+		)
 
-	# --- Item override -------------------------------------------------
-	def test_item_code_series_follows_item_group_category(self):
-		"""StyleItem.autoname prefixes the item code from Item Group.group_category."""
-		self.assertTrue(self.fabric_item.startswith("F-"), self.fabric_item)
-		self.assertTrue(self.trim_item.startswith("T-"), self.trim_item)
+	# --- Item and Item Group are left alone ------------------------------
+	def test_items_keep_the_code_they_are_given(self):
+		self.assertEqual(self.fabric_item, "SMC-TEST-POPLIN")
+		self.assertNotIn("Item", frappe.get_hooks("override_doctype_class"))
 
-	def test_item_validate_sets_qr_code(self):
-		self.assertTrue(frappe.db.get_value("Item", self.fabric_item, "qr_code"))
+	def test_nothing_is_added_to_item_group(self):
+		self.assertFalse(frappe.get_meta("Item Group").has_field("group_category"))
+		self.assertFalse(frappe.get_meta("Brand").has_field("is_customer_brand"))
+		for fieldname in ("style_master", "qr_code", "item_sub_group"):
+			self.assertFalse(frappe.get_meta("Item").has_field(fieldname), fieldname)
+		# the standard Item sections this app used to hide are back
+		for fieldname in ("variants_section", "item_code", "reorder_section"):
+			self.assertFalse(frappe.get_meta("Item").get_field(fieldname).hidden, fieldname)
+
+	def test_item_type_comes_from_the_listed_item_groups(self):
+		self.assertEqual(item_types.get_item_type(self.fabric_group), "Fabric")
+		self.assertEqual(frappe.db.get_value("Item", self.trim_item, "item_group_category"), "Trims")
+		self.assertIsNone(item_types.get_item_type("All Item Groups"))
+
+	def test_a_listed_item_group_covers_the_groups_beneath_it(self):
+		parent = _mk("Item Group", item_group_name="SMC Test Raw", parent_item_group="All Item Groups", is_group=1)
+		child = _mk("Item Group", item_group_name="SMC Test Lining", parent_item_group=parent, is_group=0)
+		nested = _mk("Item Group", item_group_name="SMC Test Zips", parent_item_group=parent, is_group=0)
+		_list_item_groups({parent: "Fabric", nested: "Trims"})
+		self.assertEqual(item_types.get_item_type(child), "Fabric")
+		# the nearer listing wins
+		self.assertEqual(item_types.get_item_type(nested), "Trims")
+
+	def test_settings_warn_about_an_item_type_with_no_group(self):
+		self.assertEqual(setup.setup_warnings(), [])
+		settings = frappe.get_doc("Style Costing Settings")
+		kept = [row.as_dict() for row in settings.item_groups]
+		self.addCleanup(_replace_item_groups, kept)
+		_replace_item_groups([row for row in kept if row["item_type"] != "Finished Goods"])
+		self.assertIn("Finished Goods", setup.setup_warnings()[0])
+
+	def test_order_lines_find_the_style_costed_for_their_item(self):
+		style = self._build("Style Master")
+		self.assertEqual(style_for_item(self.garment_item), style.name)
+		self.assertIsNone(style_for_item(self.fabric_item))
 
 	# --- the style DocType ------------------------------------------------
 	def test_style_master_lifecycle(self):
@@ -214,48 +246,6 @@ class TestStyleMaster(IntegrationTestCase):
 		self.assertEqual([row["cost_head"] for row in defaults["cost_heads"]], ["COMMISSION"])
 		self.assertEqual(defaults["cost_heads"][0]["rate_our"], 10)
 
-	def test_item_codes_can_be_left_to_erpnext(self):
-		self.addCleanup(_set_setting, "keep_erpnext_item_codes", 0)
-		_set_setting("keep_erpnext_item_codes", 1)
-		item = frappe.get_doc(
-			{
-				"doctype": "Item",
-				"item_code": "SMC-KEPT-CODE",
-				"item_name": "SMC Kept Code",
-				"item_group": self.fabric_group,
-				"stock_uom": "Meter",
-				"is_stock_item": 0,
-				"composition": "100% Cotton",
-			}
-		).insert()
-		self.assertEqual(item.name, "SMC-KEPT-CODE")
-
-	# --- item override clash ------------------------------------------------
-	def test_no_conflict_when_only_this_app_overrides_item(self):
-		self.assertIsNone(setup.get_item_override_conflict())
-
-	def test_conflict_reported_when_another_app_wins_item(self):
-		with _item_overrides(setup.ITEM_CONTROLLER, "other_app.overrides.OtherItem"):
-			self.assertIn("other_app.overrides.OtherItem", setup.get_item_override_conflict())
-
-	def test_conflict_reported_when_this_app_wins_item(self):
-		with _item_overrides("other_app.overrides.OtherItem", setup.ITEM_CONTROLLER):
-			self.assertIn("ignored", setup.get_item_override_conflict())
-
-	def test_untagged_item_groups_are_counted(self):
-		before = setup.untagged_item_groups()
-		# Group Category is mandatory, so only groups older than the app lack one
-		group = _mk(
-			"Item Group",
-			item_group_name="SMC Untagged",
-			parent_item_group="All Item Groups",
-			is_group=0,
-			group_category="Fabric",
-		)
-		frappe.db.set_value("Item Group", group, "group_category", None)
-		self.assertEqual(setup.untagged_item_groups(), before + 1)
-		self.assertTrue(any("Group Category" in w for w in setup.setup_warnings()))
-
 	# --- charts, notifications, onboarding --------------------------------
 	def test_standard_records_are_installed(self):
 		for doctype, name in (
@@ -343,13 +333,15 @@ class TestStyleMaster(IntegrationTestCase):
 		self.assertEqual(demo.install(), 10)
 		self.assertTrue(frappe.db.exists("Item", {"item_name": "Demo Mens Shirt"}))
 		self.assertTrue(frappe.db.exists("Merchandiser", "Demo Merchandiser 1"))
-		fabric = frappe.db.get_value("Item", {"item_name": "Demo Cotton Poplin"}, "name")
-		self.assertTrue(fabric.startswith("F-"), fabric)
+		fabric = "DEMO-FABRIC-POPLIN"
+		self.assertTrue(frappe.db.exists("Item", fabric))
+		self.assertEqual(item_types.get_item_type("Demo Fabric"), "Fabric")
 		self.assertRaises(frappe.ValidationError, demo.install)
 
 		self.assertEqual(demo.remove(), [])
 		self.assertFalse(frappe.db.exists("Item", fabric))
 		self.assertFalse(frappe.db.exists("Item Group", "Demo Fabric"))
+		self.assertIsNone(item_types.get_item_type("Demo Fabric"))
 		self.assertFalse(frappe.db.exists("Merchandiser", "Demo Merchandiser 1"))
 
 	# --- style and item ---------------------------------------------------
@@ -357,11 +349,6 @@ class TestStyleMaster(IntegrationTestCase):
 		style = self._build("Style Master")
 		self.assertEqual(style.style_master_name, "SMC Test Shirt")
 		self.assertEqual(style.style_category, self.garment_group)
-
-	def test_item_points_back_at_the_first_style_costed_for_it(self):
-		first = frappe.db.get_value("Item", self.garment_item, "style_master") or self._build("Style Master").name
-		self._build("Style Master")
-		self.assertEqual(frappe.db.get_value("Item", self.garment_item, "style_master"), first)
 
 	def test_garment_item_query_offers_garments_only(self):
 		args = {**LINK_QUERY_ARGS, "txt": "SMC Test"}
@@ -492,18 +479,6 @@ def _mk_user(email, role):
 	return email
 
 
-def _item_overrides(*controllers):
-	"""Pretend these apps override Item, leaving every other hook alone."""
-	get_hooks = frappe.get_hooks
-
-	def fake(hook=None, *args, **kwargs):
-		if hook == "override_doctype_class":
-			return {"Item": list(controllers)}
-		return get_hooks(hook, *args, **kwargs)
-
-	return patch.object(frappe, "get_hooks", side_effect=fake)
-
-
 def _workflow_doc():
 	"""The workflow as it would be created, without touching the site."""
 	return {
@@ -512,6 +487,22 @@ def _workflow_doc():
 			{"state": s, "action": a, "next_state": n, "allowed": r} for s, a, n, r in approval.TRANSITIONS
 		],
 	}
+
+
+def _list_item_groups(types):
+	"""List Item Groups in Style Costing Settings, replacing any earlier entry."""
+	settings = frappe.get_doc("Style Costing Settings")
+	rows = [row.as_dict() for row in settings.item_groups if row.item_group not in types]
+	rows += [{"item_group": group, "item_type": item_type} for group, item_type in types.items()]
+	_replace_item_groups(rows)
+
+
+def _replace_item_groups(rows):
+	settings = frappe.get_doc("Style Costing Settings")
+	settings.set(
+		"item_groups", [{"item_group": r["item_group"], "item_type": r["item_type"]} for r in rows]
+	)
+	settings.save()
 
 
 def _set_series(series):

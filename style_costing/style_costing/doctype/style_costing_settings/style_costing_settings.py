@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.custom.doctype.property_setter.property_setter import make_property_setter
 from frappe.model.document import Document
 from frappe.model.naming import NamingSeries
@@ -25,6 +26,11 @@ class StyleCostingSettings(Document):
 	def validate(self):
 		self.style_naming_series = (self.style_naming_series or "").strip()
 		NamingSeries(self.style_naming_series).validate()
+
+		groups = [row.item_group for row in self.item_groups]
+		repeated = {group for group in groups if groups.count(group) > 1}
+		if repeated:
+			frappe.throw(_("Item Group listed more than once: {0}").format(", ".join(sorted(repeated))))
 
 	def on_update(self):
 		# Style Master names itself from its naming_series Select, the same

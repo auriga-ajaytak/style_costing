@@ -12,7 +12,7 @@ industry**.
 | Current version | 0.0.1 (unreleased work on `main`, see CHANGELOG.md) |
 | Platform | Frappe v16 · ERPNext v16 · Python ≥ 3.14 |
 | Dependency | ERPNext (`required_apps = ["erpnext"]`) |
-| Scale | 60 DocTypes · 4 reports · 2 print formats · 3,745 lines client JS · 34 integration tests |
+| Scale | 59 DocTypes · 4 reports · 2 print formats · 3,745 lines client JS · 35 integration tests |
 | Target | Public release — any garment exporter or CMT manufacturer on ERPNext |
 
 ### Status at a glance — 2026-10-07
@@ -214,7 +214,7 @@ production, lab testing and planning. Six ship with default data.
 
 | | Built | Missing |
 |---|---|---|
-| DocTypes | 60 | — |
+| DocTypes | 59 | — |
 | Print formats | 2 | ⏭ tech pack and Operation Bulletin, both deferred (product owner, 2026-10-06) |
 | Reports | 4 | costing version comparison (deferred) |
 | Dashboard charts | 3 | margin trend, cost-head contribution |
@@ -222,7 +222,7 @@ production, lab testing and planning. Six ship with default data.
 | Notifications | 2 (approval) | T&A milestones — the T&A rows hold days, not dates |
 | Roles | 3 + System Manager | Buyer (read-only) |
 | Settings single | ✅ Style Costing Settings | base currency, precision |
-| Migration patches | 2 | one per schema change from here on |
+| Migration patches | none, by decision | — |
 | Server-side costing API | **none** | all computation is client-side |
 | CI | workflow added | not yet seen to pass |
 | Licence file | ✅ GPL-3.0 | — |
@@ -336,12 +336,12 @@ and a product.
 
 - ~~Populate the licence file; confirm the licence in `pyproject.toml` and README agree~~ ✅ done — GPL-3.0
 - ~~Align repo name with app name~~ ✅ done — `style_costing` throughout
-- ~~Write migration patches: the historical duplicate DocType removal, orphan
-  workspace links, the app and module rename, renamed fields~~ ✅ closed —
-  a clean break was chosen (§8, question 5), so pre-rename installs are not
-  upgraded in place. Two patches cover what a current install needs: the
-  legacy naming-series setter and the corrected fixture names. From here on,
-  every schema change ships with its own patch.
+- ~~Write migration patches~~ ✅ closed — **the app ships no patches** (product
+  owner, 2026-10-08). It is a generic app with a clean break from the v13
+  original, so there are no earlier installs to carry forward. Anything a new
+  site needs is done in code at install (`setup.after_install`). Once a
+  version is released and customers are running it, upgrades that change
+  stored data will need a decision on how to migrate them.
 - ~~De-brand the naming series; introduce **Style Costing Settings**~~ ✅ done —
   naming series, default style rate, default efficiency, default cost heads.
   Base currency comes from the Company; precision is a Phase 1 item.
@@ -358,9 +358,10 @@ style without touching code or asking the vendor.
 - ~~Add `company` to Style Master~~ ✅ done. The masters carry no company, so
   there is nothing to filter by it yet.
 - ⏸ Set field-level precision on all amount fields — *parked, §8.1*
-- ~~Detect and handle the Item override collision~~ ✅ done — warned at install
-  and migrate and on the settings page; "Keep ERPNext Item Codes" turns this
-  app's item naming off.
+- ~~Detect and handle the Item override collision~~ ✅ resolved by removal — the
+  app no longer overrides Item at all (product owner, 2026-10-08): no item
+  naming, no QR code, nothing on Item Group. Item types come from a table of
+  Item Groups in Style Costing Settings.
 
 **Done when:** a production cost sheet from any garment exporter can be
 reproduced exactly, out of the box, with no Customize Form changes.

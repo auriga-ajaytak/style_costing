@@ -42,20 +42,20 @@ bench build --app style_costing
 
 Then open the **Styling** workspace and follow
 [Set up](docs/user-guide.md#1-set-up-once) in the user guide. The one step that
-cannot be skipped on a site with existing items is tagging Item Groups with a
-Group Category.
+cannot be skipped is listing, in Style Costing Settings, which of your Item
+Groups hold fabric, trims and finished goods.
 
 ## What the app adds
 
-**60 DocTypes.** Style Master is the only one most users open; it is
+**59 DocTypes.** Style Master is the only one most users open; it is
 submittable and carries 112 fields across 10 tabs. Around 25 are masters
 (seasons, segments, cost heads, lab tests, ...), one is the settings page, and
 the rest are the child tables behind Style Master's grids. Six masters ship
 with generic default records.
 
 **Style Costing Settings** — the style naming series, the defaults a new style
-starts from (style rate, efficiency, cost heads), whether this app names Items,
-the approval workflow switch, and demo data. It also warns about anything that
+starts from (style rate, efficiency, cost heads), which Item Groups hold
+fabric, trims and garments, the approval workflow switch, and demo data. It also warns about anything that
 still needs setting up.
 
 **Roles and role profiles** — Costing Manager, Merchandiser and Production
@@ -84,31 +84,34 @@ has a submitted BOM is left alone.
 **Workspace** — "Styling": number cards, charts of styles by buyer, season and
 merchandiser, and links to every document, master and report.
 
-**Item extensions** — 51 custom fields and 16 property setters covering fabric
-construction, GSM, composition, weave, trims attributes, item references and a
-generated QR code, plus custom fields on Brand, Item Group, Item Barcode and
-Item Supplier.
+**Item and Item Group are left as ERPNext ships them, with one exception.**
+The app does not rename items, replace the Item controller, hide standard Item
+sections or add anything to Item Group. Which groups hold fabric, trims and
+finished goods is listed in Style Costing Settings (a listed group covers
+everything beneath it), so any Item Group hierarchy works.
+
+The exception is a set of fabric and trim specification fields on Item: GSM,
+construction, composition, weave, widths, counts, trim attributes and item
+references. They appear only for items in the groups listed as Fabric or
+Trims; every other item shows the plain ERPNext form.
 
 **Style ↔ Item link** — a style is costed for a garment Item: *Style Name* on
 Style Master is a link to Item (garment groups only, templates rather than
-variants), and *Style Category* is that item's Item Group. Saving the style
-sets `Item.style_master` on the item and its variants, and
-`Sales Order Item.style_master` fetches it from `item_code`, so an order line
-traces back to its style without duplicate entry. An item keeps the first
-style costed for it; an amended style takes over from the one it replaces.
+variants), and *Style Category* is that item's Item Group. The link lives on the style only: nothing is
+stored on the Item. When a Sales Order is saved, each line's *Style Master* is
+filled by finding the style costed for that item or its template (a submitted
+style first, then the newest), so an order line traces back to its style
+without duplicate entry.
 v13 used two masters of its own here, Product and Product Category, which
 duplicated Item and Item Group and have been removed.
-
-**Item naming override** — `StyleItem` derives the item code series from
-`Item Group.group_category`: `F-` fabric, `T-` trims, `G-` garment, `Y-` yarn,
-`CG-` capital goods, `C-` consumables, `S-` stationery, `I-` otherwise.
 
 ## Layout
 
 ```
 style_costing/
 ├── queries.py                      whitelisted link queries + meta helper
-├── docevents/                      Item class override, Item/Quotation hooks
+├── docevents/                      Item, Quotation and Sales Order hooks
+├── item_types.py                   which Item Groups hold fabric, trims, finished goods
 ├── public/js/
 │   ├── style_form.js               Style Master client-side form logic
 │   ├── style_costing.bundle.js
@@ -118,10 +121,9 @@ style_costing/
 ├── bom.py                          BOM generation from a style
 ├── setup.py                        install hooks, role profiles, setup warnings
 ├── demo/                           sample records, installed from the settings page
-├── patches/                        migration patches
 └── style_costing/
-    ├── custom/                     Customize Form exports (Item, Brand, ...)
-    ├── doctype/                    60 DocTypes
+    ├── custom/                     Customize Form exports (Item, Quotation, Sales Order)
+    ├── doctype/                    59 DocTypes
     ├── report/                     4 script reports
     ├── print_format/               Style Costing Sheet, Buyer Cost Sheet
     ├── dashboard_chart/, number_card/
@@ -219,14 +221,6 @@ was not carried over.
 
 ## Things to know
 
-**Every Item gets a generated code.** The `StyleItem` override replaces
-`item_code` on *every* Item, even when one is typed in — this is v13 behaviour,
-kept as the default. Tick **Keep ERPNext Item Codes** in Style Costing Settings
-to turn it off. It means an Item cannot be created with a chosen code while this app
-is installed, so data imports that rely on specific item codes, and ERPNext's own
-shared test records (`_Test Item` and friends), do not work unchanged. The app's
-test suite opts out of those shared records for this reason.
-
 **Do not name a Workspace after a DocType.** The v16 desk resolves
 `/desk/<slug>/...` to a Workspace before a DocType, so a workspace named after a
 style form would shadow that form. The workspace is called "Styling", as it was
@@ -238,11 +232,11 @@ in v13.
 bench --site <site> run-tests --app style_costing
 ```
 
-`tests/test_style_master.py` holds 34 integration tests: item codes and the QR
-hook, the Style Master lifecycle and tab structure, every whitelisted link
+`tests/test_style_master.py` holds 35 integration tests: Item and Item Group
+being left alone, the item-type listing, the Style Master lifecycle and tab structure, every whitelisted link
 query, process routes, the settings, roles, the approval workflow, BOM
 generation and reconciliation, the reports, the buyer print format, demo data
-and the Item override check. They run on every push through GitHub Actions.
+and order-line style lookup. They run on every push through GitHub Actions.
 
 The costing arithmetic itself runs in the browser (`public/js/style_form.js`)
 and is not covered by these tests.

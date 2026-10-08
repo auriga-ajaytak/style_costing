@@ -12,6 +12,8 @@ from frappe import _
 from frappe.utils.nestedset import get_root_of
 
 SETTINGS = "Style Costing Settings"
+# demo Item Group -> what Style Costing Settings should list it as
+ITEM_GROUPS = {"Demo Fabric": "Fabric", "Demo Trims": "Trims", "Demo Finished Goods": "Finished Goods"}
 ROLES = ("System Manager", "Costing Manager")
 
 
@@ -35,8 +37,22 @@ def install():
 			record["parent_item_group"] = get_root_of("Item Group")
 		doc = frappe.get_doc(record).insert()
 		created.append([doc.doctype, doc.name])
+		if doc.doctype == "Item Group":
+			_list_item_group(doc.name, ITEM_GROUPS[doc.name])
 	_remember(created)
 	return len(created)
+
+
+def _list_item_group(item_group, item_type):
+	settings = frappe.get_doc(SETTINGS)
+	settings.append("item_groups", {"item_group": item_group, "item_type": item_type})
+	settings.save()
+
+
+def _unlist_item_groups():
+	settings = frappe.get_doc(SETTINGS)
+	settings.set("item_groups", [row for row in settings.item_groups if row.item_group not in ITEM_GROUPS])
+	settings.save()
 
 
 @frappe.whitelist()
@@ -44,6 +60,7 @@ def remove():
 	"""Delete what `install` created, newest first. A record that has since
 	been used elsewhere is left in place and reported."""
 	frappe.only_for(ROLES)
+	_unlist_item_groups()
 	kept = []
 	for doctype, name in reversed(_installed()):
 		if not frappe.db.exists(doctype, name):

@@ -8,6 +8,8 @@ import frappe
 from frappe import _
 from frappe.query_builder import DocType
 
+from style_costing.item_types import item_groups_of
+
 
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
@@ -28,6 +30,10 @@ def get_merchandisers(doctype, txt, searchfield, start, page_len, filters):
 
 
 def _items_by_group_category(category, txt, start, page_len, names=None):
+	"""Items in the Item Groups that Style Costing Settings lists for `category`."""
+	groups = item_groups_of(category)
+	if not groups:
+		return []
 	item = DocType("Item")
 	item_group = DocType("Item Group")
 	query = (
@@ -35,7 +41,7 @@ def _items_by_group_category(category, txt, start, page_len, names=None):
 		.inner_join(item_group)
 		.on(item.item_group == item_group.name)
 		.select(item.name, item_group.name, item_group.parent_item_group)
-		.where(item_group.group_category == category)
+		.where(item.item_group.isin(groups))
 		.where(item.name.like(f"%{txt}%") | item.item_name.like(f"%{txt}%"))
 	)
 	if names:
@@ -46,16 +52,16 @@ def _items_by_group_category(category, txt, start, page_len, names=None):
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
 def garment_items(doctype, txt, searchfield, start, page_len, filters):
-	"""Garment Items a style can be costed for: templates and items without
+	"""Finished-goods Items a style can be costed for: templates and items without
 	variants. A variant follows its template."""
+	groups = item_groups_of("Finished Goods")
+	if not groups:
+		return []
 	item = DocType("Item")
-	item_group = DocType("Item Group")
 	return (
 		frappe.qb.from_(item)
-		.inner_join(item_group)
-		.on(item.item_group == item_group.name)
-		.select(item.name, item.item_name, item_group.name)
-		.where(item_group.group_category == "Garment")
+		.select(item.name, item.item_name, item.item_group)
+		.where(item.item_group.isin(groups))
 		.where(item.variant_of.isnull() | (item.variant_of == ""))
 		.where(item.disabled == 0)
 		.where(item.name.like(f"%{txt}%") | item.item_name.like(f"%{txt}%"))

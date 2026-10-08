@@ -66,29 +66,39 @@ tells you what. Work through the page from top to bottom:
 |---|---|---|
 | **Style Naming Series** | The pattern for style numbers. `STY-.YYYY.-.####` gives `STY-2026-0001`. | Leave it. |
 | **Enable Costing Approval Workflow** | Makes every style go through Draft → Costed → Approved → Quoted. | Leave it off to begin with. You can turn it on later. |
-| **Keep ERPNext Item Codes** | Off: the app gives every new item a code such as `F-0000001`. On: you type or import your own codes. | Leave it off, unless you already have item codes you want to keep. |
+| **Item Groups** | Which of your Item Groups hold fabric, trims and finished goods. See Step 2. | Fill it in: the item lists on a style are empty without it. |
 | **Default Style Rate / Default Efficiency** | Values filled in for you on new rows. | Leave them blank. |
 | **Default Cost Heads** | Cost lines (overhead, commission, ...) added to every new style automatically. | Add the ones you charge on every style. |
 
 Click **Save**.
 
-### Step 2 — Tell the app where your fabric and trims are
+### Step 2 — Tell the app where your fabric, trims and finished goods are
 
-**This is the step people miss.** When you add fabric to a style, the app only
-offers items from Item Groups marked as *Fabric*. The same goes for trims. If
-your groups are not marked, the lists are empty.
+**This is the step people miss.** Every company arranges its Item Groups
+differently: one has "Raw Material → Fabric" and "Raw Material → Trims", another
+has "Fabrics", "Accessories" and "Finished Goods". The app does not guess. You
+tell it once, in the settings.
 
-1. Go to **Stock → Item Group**.
-2. Open each group that holds fabric and set **Group Category** to *Fabric*.
-3. Do the same for trims (*Trims*) and for finished garments (*Garment*).
-4. Save each one.
+In **Style Costing Settings**, under **Item Groups**, add one row for each:
 
-Style Costing Settings shows how many groups are still unmarked.
+| Item Group | Holds |
+|---|---|
+| your fabric group | Fabric |
+| your trims group | Trims |
+| your finished goods group | Finished Goods |
 
-> **What the category also does:** it decides the code of new items in that
-> group. Fabric items start with `F-`, trims with `T-`, garments with `G-`,
-> yarn `Y-`, capital goods `CG-`, consumables `C-`, stationery `S-`, anything
-> else `I-`.
+- A group covers **everything beneath it**. List "Raw Material → Fabric" and all
+  its sub-groups count as fabric.
+- You can list more than one group for the same type.
+- Nothing is changed on your Item Groups themselves.
+
+**Why the app needs this.** You never pick a category on a style. You pick
+items. But when you add a fabric row, the list should offer your fabrics, not
+your whole catalogue; the same for trims; and **Style Name** should offer only
+finished goods. This table is how the app knows which is which.
+
+An orange message at the top of the settings page tells you if a type has no
+group yet.
 
 ### Step 3 — Give people access
 
@@ -114,15 +124,16 @@ Before your first style you need at least:
 
 - a **Buyer** (ERPNext *Customer*),
 - the **garment Item** you are costing (for example "Men's Shirt"), in an Item
-  Group marked *Garment*,
-- some **fabric and trim items** in tagged Item Groups,
+  Group you listed as *Finished Goods*,
+- some **fabric and trim items** in the Item Groups you listed,
 - if you want to record who handles each style, your merchandisers as
   **Employees** in a Department named **Merchandising**.
 
 ### Want to try it first? Use the demo data
 
 In Style Costing Settings click **Install Demo Data**. You get three
-merchandisers, three tagged item groups, a fabric, a button, a garment item and
+merchandisers, three item groups (already listed in the settings), a fabric, a
+button, a garment item and
 a buyer — enough to build a style straight away.
 
 When you are done, **Remove Demo Data** deletes exactly those records. Anything
@@ -142,7 +153,7 @@ Fill in who and what the style is for.
 | Field | What to enter |
 |---|---|
 | **Buyer** | The customer. |
-| **Style Name** *(required)* | The garment **Item** you are costing, for example "Men's Shirt". Only items in an Item Group marked *Garment* are listed. If the garment comes in sizes or colours, pick the template item, not a variant. Create the item first if it does not exist yet. |
+| **Style Name** *(required)* | The garment **Item** you are costing, for example "Men's Shirt". Only items in the Item Groups you listed as *Finished Goods* are shown. If the garment comes in sizes or colours, pick the template item, not a variant. Create the item first if it does not exist yet. |
 | **Style Category** | Filled in for you: the Item Group of that item. |
 | **Buyer Style Number** *(required)* | The buyer's own reference for the design. |
 | **Company** | Your company. Filled in for you. |
@@ -306,12 +317,9 @@ and charts of styles by buyer, season and merchandiser.
 ## Common problems
 
 **The fabric (or trims) list is empty when I add a row.**
-The item's Item Group has no Group Category. See
-[Step 2](#step-2--tell-the-app-where-your-fabric-and-trims-are).
-
-**I typed an item code and the app changed it.**
-The app gives every new item its own code. To keep yours, tick **Keep ERPNext
-Item Codes** in Style Costing Settings.
+No Item Group is listed for that type, or the item is in a group that is not
+under a listed one. See
+[Step 2](#step-2--tell-the-app-where-your-fabric-trims-and-finished-goods-are).
 
 **The Merchandiser list is empty.**
 It lists Employees in a Department named "Merchandising". Create that
@@ -329,12 +337,13 @@ The approval workflow is on. Use the workflow button at the top right instead.
 Costs are worked out when the style is open on screen. Open it and click Save.
 
 **The Style Name list is empty.**
-It lists Items in an Item Group whose Group Category is *Garment*. Create the
-garment item in such a group first.
+It shows Items in the Item Groups you listed as *Finished Goods* in Style Costing
+Settings. List your finished-goods group there, and create the garment item
+in it.
 
-**The settings page warns about another app and the Item controller.**
-Two installed apps both want to change how items behave, and ERPNext only runs
-one. Show the message to your administrator.
+**The Item form shows fabric fields for one item and not another.**
+The extra fabric and trim fields appear only for items in the Item Groups you
+listed as Fabric or Trims. Every other item keeps the standard ERPNext form.
 
 **I want to get rid of the demo records.**
 Style Costing Settings → **Remove Demo Data**.

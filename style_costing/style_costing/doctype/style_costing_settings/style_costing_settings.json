@@ -6,10 +6,10 @@
  "field_order": [
   "naming_section",
   "style_naming_series",
+  "item_groups_section",
+  "item_groups",
   "approval_section",
   "enable_approval_workflow",
-  "item_section",
-  "keep_erpnext_item_codes",
   "costing_defaults_section",
   "default_style_rate",
   "column_break_costing",
@@ -69,18 +69,6 @@
    "options": "Other Cost"
   },
   {
-   "fieldname": "item_section",
-   "fieldtype": "Section Break",
-   "label": "Items"
-  },
-  {
-   "default": "0",
-   "description": "By default every new Item gets a generated code from its Item Group category (F- fabric, T- trims, G- garment, ...). Tick this to leave item codes to ERPNext, for example when another app also overrides Item or when importing items with their own codes.",
-   "fieldname": "keep_erpnext_item_codes",
-   "fieldtype": "Check",
-   "label": "Keep ERPNext Item Codes"
-  },
-  {
    "fieldname": "approval_section",
    "fieldtype": "Section Break",
    "label": "Approval"
@@ -105,6 +93,18 @@
    "label": "Installed Demo Records",
    "options": "JSON",
    "read_only": 1
+  },
+  {
+   "description": "Tell the app which of your Item Groups hold fabric, trims and finished goods. A group listed here covers every group beneath it. On a style, the Fabric and Trims lists and the Style Name list offer items from these groups only.",
+   "fieldname": "item_groups_section",
+   "fieldtype": "Section Break",
+   "label": "Item Groups"
+  },
+  {
+   "fieldname": "item_groups",
+   "fieldtype": "Table",
+   "label": "Item Groups",
+   "options": "Style Item Group"
   }
  ],
  "issingle": 1,

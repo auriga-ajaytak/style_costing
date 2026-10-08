@@ -2,9 +2,9 @@
 # For license information, please see license.txt
 """ERPNext BOMs from a Style Master.
 
-A style lists the fabric and trims one garment consumes; the garment Items made
-from it point back through `Item.style_master`. This turns the first into a BOM
-for each of the second. It reads the style and never writes to it.
+A style lists the fabric and trims one garment consumes, and names the garment
+Item it is costed for. This turns the first into a BOM for that Item, or for
+each of its variants. It reads the style and never writes to it.
 """
 
 import erpnext
@@ -39,16 +39,15 @@ def style_materials(style) -> dict[str, frappe._dict]:
 
 def garment_items(style) -> list[str]:
 	"""Items made from this style: its Item, or that Item's variants when it is
-	a template, plus any Item pointed at the style by hand. A template itself
-	gets no BOM."""
+	a template. A template itself gets no BOM."""
+	if not style.item:
+		return []
 	item = frappe.qb.DocType("Item")
-	made_from = item.style_master == style.name
-	if style.item:
-		made_from = made_from | (item.name == style.item) | (item.variant_of == style.item)
 	return (
 		frappe.qb.from_(item)
 		.select(item.name)
-		.where(made_from & (item.has_variants == 0) & (item.disabled == 0))
+		.where((item.name == style.item) | (item.variant_of == style.item))
+		.where((item.has_variants == 0) & (item.disabled == 0))
 		.orderby(item.name)
 	).run(pluck=True)
 

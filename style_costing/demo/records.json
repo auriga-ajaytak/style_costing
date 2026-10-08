@@ -2,11 +2,11 @@
  {"doctype": "Merchandiser", "name1": "Demo Merchandiser 1"},
  {"doctype": "Merchandiser", "name1": "Demo Merchandiser 2"},
  {"doctype": "Merchandiser", "name1": "Demo Merchandiser 3"},
- {"doctype": "Item Group", "item_group_name": "Demo Fabric", "group_category": "Fabric"},
- {"doctype": "Item Group", "item_group_name": "Demo Trims", "group_category": "Trims"},
- {"doctype": "Item Group", "item_group_name": "Demo Garment", "group_category": "Garment"},
+ {"doctype": "Item Group", "item_group_name": "Demo Fabric"},
+ {"doctype": "Item Group", "item_group_name": "Demo Trims"},
+ {"doctype": "Item Group", "item_group_name": "Demo Finished Goods"},
  {"doctype": "Customer", "customer_name": "Demo Buyer"},
- {"doctype": "Item", "item_name": "Demo Cotton Poplin", "item_group": "Demo Fabric", "stock_uom": "Meter", "is_stock_item": 0, "composition": "100% Cotton"},
- {"doctype": "Item", "item_name": "Demo Shirt Button", "item_group": "Demo Trims", "stock_uom": "Nos", "is_stock_item": 0, "composition": "Polyester"},
- {"doctype": "Item", "item_name": "Demo Mens Shirt", "item_group": "Demo Garment", "stock_uom": "Nos", "is_stock_item": 0, "composition": "100% Cotton"}
+ {"doctype": "Item", "item_name": "Demo Cotton Poplin", "item_group": "Demo Fabric", "stock_uom": "Meter", "is_stock_item": 0, "composition": "100% Cotton", "item_code": "DEMO-FABRIC-POPLIN"},
+ {"doctype": "Item", "item_name": "Demo Shirt Button", "item_group": "Demo Trims", "stock_uom": "Nos", "is_stock_item": 0, "composition": "Polyester", "item_code": "DEMO-TRIM-BUTTON"},
+ {"doctype": "Item", "item_name": "Demo Mens Shirt", "item_group": "Demo Finished Goods", "stock_uom": "Nos", "is_stock_item": 0, "composition": "100% Cotton", "item_code": "DEMO-MENS-SHIRT"}
 ]

@@ -23,24 +23,10 @@ doctype_js = {
 	"Quotation": "public/js/quotation.js",
 }
 
-doctype_list_js = {
-	"Item": "public/js/item_list.js",
-}
-
-# DocType Class
-# ---------------
-# Override standard doctype classes
-
-override_doctype_class = {
-	"Item": "style_costing.docevents.item.StyleItem",
-}
-
 # Installation
 # ------------
-# Only one app's Item controller wins; say so when it is not this one.
 
 after_install = "style_costing.setup.after_install"
-after_migrate = ["style_costing.setup.warn_on_item_override_conflict"]
 
 # Document Events
 # ---------------
@@ -52,6 +38,9 @@ doc_events = {
 	},
 	"Item": {
 		"validate": "style_costing.docevents.item.validate",
+	},
+	"Sales Order": {
+		"validate": "style_costing.docevents.sales_order.validate",
 	},
 }
 
