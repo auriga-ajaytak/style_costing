@@ -8,38 +8,45 @@
  "engine": "InnoDB",
  "field_order": [
   "style_details_tab",
-  "style_image",
-  "style_picture",
-  "column_break_3",
-  "image_preview",
   "style_details",
   "customer",
   "item",
   "style_category",
-  "naming_series",
-  "company",
+  "column_break_style_2",
   "style_number",
-  "style_master_name",
-  "merchandiser",
-  "merchandiser_name",
-  "quote_for",
-  "priority",
-  "country",
-  "currency",
-  "exchange_rate",
-  "size_series",
-  "column_break_6",
-  "group_id",
-  "segment",
   "brand_name",
   "content",
-  "quote_date",
-  "lead_days",
+  "style_master_name",
+  "style_picture",
+  "column_break_style_3",
+  "naming_series",
+  "company",
+  "group_id",
+  "classification_section",
   "season",
+  "segment",
+  "column_break_class_2",
+  "merchandiser",
+  "merchandiser_name",
+  "column_break_class_3",
+  "priority",
+  "country",
+  "quote_section",
+  "quote_for",
+  "quote_date",
   "approval_date",
+  "column_break_quote_2",
+  "currency",
+  "exchange_rate",
+  "column_break_quote_3",
   "garment_qty",
+  "lead_days",
+  "structure_section",
+  "size_series",
+  "column_break_structure_2",
   "is_set",
   "is_panel",
+  "column_break_structure_3",
   "is_pack",
   "pcs_per_pack",
   "panel_details",
@@ -134,31 +141,16 @@
    "label": "Style Master Name"
   },
   {
-   "collapsible": 1,
-   "fieldname": "style_image",
-   "fieldtype": "Section Break",
-   "label": "Style Image"
-  },
-  {
    "fieldname": "style_picture",
    "fieldtype": "Attach Image",
-   "label": "Select Image"
-  },
-  {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "image_preview",
-   "fieldtype": "Image",
-   "label": "Image Preview",
-   "options": "style_picture"
+   "hidden": 1,
+   "label": "Style Image"
   },
   {
    "fieldname": "style_details",
    "fieldtype": "Section Break",
    "in_preview": 1,
-   "label": "Style Details"
+   "label": "Style"
   },
   {
    "fieldname": "panel_details",
@@ -532,10 +524,11 @@
    "options": "Brand"
   },
   {
+   "description": "The garment Item this style is costed for. Its variants are linked to the style too.",
    "fieldname": "item",
    "fieldtype": "Link",
    "label": "Style Name",
-   "options": "Product",
+   "options": "Item",
    "reqd": 1
   },
   {
@@ -560,10 +553,6 @@
    "fieldname": "approval_date",
    "fieldtype": "Date",
    "label": "Approval Date"
-  },
-  {
-   "fieldname": "column_break_6",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "attach_back_design",
@@ -659,10 +648,12 @@
    "label": "Description"
   },
   {
+   "fetch_from": "item.item_group",
    "fieldname": "style_category",
    "fieldtype": "Link",
    "label": "Style Category",
-   "options": "Product Category"
+   "options": "Item Group",
+   "read_only": 1
   },
   {
    "fieldname": "merchandiser_name",
@@ -762,8 +753,56 @@
    "no_copy": 1,
    "options": "Workflow State",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_style_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_style_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "classification_section",
+   "fieldtype": "Section Break",
+   "label": "Season and Team"
+  },
+  {
+   "fieldname": "column_break_class_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_class_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quote_section",
+   "fieldtype": "Section Break",
+   "label": "Quotation"
+  },
+  {
+   "fieldname": "column_break_quote_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_quote_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "structure_section",
+   "fieldtype": "Section Break",
+   "label": "Sizes and Structure"
+  },
+  {
+   "fieldname": "column_break_structure_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_structure_3",
+   "fieldtype": "Column Break"
   }
  ],
+ "image_field": "style_picture",
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],

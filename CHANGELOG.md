@@ -37,6 +37,12 @@ All notable changes to Style Costing. Versions follow [Semantic Versioning](http
   and Cost Head `GARMENT REJECTION` is `Garment Rejection`; existing sites are
   renamed by a patch.
 
+- **Style Name is now an Item and Style Category its Item Group.** The Product
+  and Product Category masters, which duplicated them, are removed. Saving a
+  style links its Item and that item's variants back to it.
+- Opening a Style Master as any user other than Administrator failed with
+  "Insufficient Permission for Trims Process Route"; fixed.
+
 ### Not changed
 - No costing calculation has been altered since the v16 port.
 

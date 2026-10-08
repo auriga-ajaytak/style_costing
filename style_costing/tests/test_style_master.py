@@ -73,7 +73,21 @@ class TestStyleMaster(IntegrationTestCase):
 			composition="Polyester",
 		)
 		cls.customer = _mk("Customer", customer_name="SMC Test Buyer")
-		cls.product = _mk("Product", product_name="SMC Mens Shirt")
+		cls.garment_group = _mk(
+			"Item Group",
+			item_group_name="SMC Test Garment",
+			parent_item_group="All Item Groups",
+			is_group=0,
+			group_category="Garment",
+		)
+		cls.garment_item = _mk(
+			"Item",
+			item_name="SMC Test Shirt",
+			item_group=cls.garment_group,
+			stock_uom="Nos",
+			is_stock_item=0,
+			composition="100% Cotton",
+		)
 
 	# --- Item override -------------------------------------------------
 	def test_item_code_series_follows_item_group_category(self):
@@ -327,6 +341,7 @@ class TestStyleMaster(IntegrationTestCase):
 	# --- demo data --------------------------------------------------------
 	def test_demo_data_installs_and_removes_cleanly(self):
 		self.assertEqual(demo.install(), 10)
+		self.assertTrue(frappe.db.exists("Item", {"item_name": "Demo Mens Shirt"}))
 		self.assertTrue(frappe.db.exists("Merchandiser", "Demo Merchandiser 1"))
 		fabric = frappe.db.get_value("Item", {"item_name": "Demo Cotton Poplin"}, "name")
 		self.assertTrue(fabric.startswith("F-"), fabric)
@@ -337,29 +352,26 @@ class TestStyleMaster(IntegrationTestCase):
 		self.assertFalse(frappe.db.exists("Item Group", "Demo Fabric"))
 		self.assertFalse(frappe.db.exists("Merchandiser", "Demo Merchandiser 1"))
 
+	# --- style and item ---------------------------------------------------
+	def test_style_is_named_after_its_item_and_takes_its_group(self):
+		style = self._build("Style Master")
+		self.assertEqual(style.style_master_name, "SMC Test Shirt")
+		self.assertEqual(style.style_category, self.garment_group)
+
+	def test_item_points_back_at_the_first_style_costed_for_it(self):
+		first = frappe.db.get_value("Item", self.garment_item, "style_master") or self._build("Style Master").name
+		self._build("Style Master")
+		self.assertEqual(frappe.db.get_value("Item", self.garment_item, "style_master"), first)
+
+	def test_garment_item_query_offers_garments_only(self):
+		args = {**LINK_QUERY_ARGS, "txt": "SMC Test"}
+		names = [row[0] for row in queries.garment_items(doctype="Item", filters=None, **args)]
+		self.assertEqual(names, [self.garment_item])
+
 	# --- BOM generation ---------------------------------------------------
 	def test_boms_are_generated_and_reconcile(self):
 		style = self._build("Style Master")
-		self.assertRaises(frappe.ValidationError, bom.generate_boms, style.name)
-
-		garment_group = _mk(
-			"Item Group",
-			item_group_name="SMC Test Garment",
-			parent_item_group="All Item Groups",
-			is_group=0,
-			group_category="Garment",
-		)
-		garment = frappe.get_doc(
-			{
-				"doctype": "Item",
-				"item_name": f"SMC Garment {style.name}",
-				"item_group": garment_group,
-				"stock_uom": "Nos",
-				"is_stock_item": 0,
-				"composition": "100% Cotton",
-				"style_master": style.name,
-			}
-		).insert()
+		garment = frappe._dict(name=self.garment_item)
 
 		created = bom.generate_boms(style.name)["created"]
 		self.assertEqual(len(created), 1)
@@ -427,7 +439,7 @@ class TestStyleMaster(IntegrationTestCase):
 				"doctype": doctype,
 				"style_master_name": f"TEST-{doctype}",
 				"customer": self.customer,
-				"item": self.product,
+				"item": self.garment_item,
 				"style_number": "ST-TEST",
 				"currency": "INR",
 				"garment_qty": 1000,

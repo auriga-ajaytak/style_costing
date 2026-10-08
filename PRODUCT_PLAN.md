@@ -12,7 +12,7 @@ industry**.
 | Current version | 0.0.1 (unreleased work on `main`, see CHANGELOG.md) |
 | Platform | Frappe v16 · ERPNext v16 · Python ≥ 3.14 |
 | Dependency | ERPNext (`required_apps = ["erpnext"]`) |
-| Scale | 62 DocTypes · 4 reports · 2 print formats · 3,745 lines client JS · 34 integration tests |
+| Scale | 60 DocTypes · 4 reports · 2 print formats · 3,745 lines client JS · 34 integration tests |
 | Target | Public release — any garment exporter or CMT manufacturer on ERPNext |
 
 ### Status at a glance — 2026-10-07
@@ -214,7 +214,7 @@ production, lab testing and planning. Six ship with default data.
 
 | | Built | Missing |
 |---|---|---|
-| DocTypes | 61 | — |
+| DocTypes | 60 | — |
 | Print formats | 2 | ⏭ tech pack and Operation Bulletin, both deferred (product owner, 2026-10-06) |
 | Reports | 4 | costing version comparison (deferred) |
 | Dashboard charts | 3 | margin trend, cost-head contribution |

@@ -24,7 +24,7 @@ def get_data(filters):
 	costing = style_materials(style)
 
 	rows = []
-	for item in garment_items(style.name):
+	for item in garment_items(style):
 		bom = _current_bom(item)
 		in_bom = _bom_materials(bom) if bom else {}
 		for material in sorted(set(costing) | set(in_bom)):

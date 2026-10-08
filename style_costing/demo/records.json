@@ -6,7 +6,7 @@
  {"doctype": "Item Group", "item_group_name": "Demo Trims", "group_category": "Trims"},
  {"doctype": "Item Group", "item_group_name": "Demo Garment", "group_category": "Garment"},
  {"doctype": "Customer", "customer_name": "Demo Buyer"},
- {"doctype": "Product", "product_name": "Demo Mens Shirt"},
  {"doctype": "Item", "item_name": "Demo Cotton Poplin", "item_group": "Demo Fabric", "stock_uom": "Meter", "is_stock_item": 0, "composition": "100% Cotton"},
- {"doctype": "Item", "item_name": "Demo Shirt Button", "item_group": "Demo Trims", "stock_uom": "Nos", "is_stock_item": 0, "composition": "Polyester"}
+ {"doctype": "Item", "item_name": "Demo Shirt Button", "item_group": "Demo Trims", "stock_uom": "Nos", "is_stock_item": 0, "composition": "Polyester"},
+ {"doctype": "Item", "item_name": "Demo Mens Shirt", "item_group": "Demo Garment", "stock_uom": "Nos", "is_stock_item": 0, "composition": "100% Cotton"}
 ]

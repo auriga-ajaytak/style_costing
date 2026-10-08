@@ -23,7 +23,6 @@ style_costing.on_child = function (doctype, handlers) {
 
 style_costing.style_form = {
 	refresh:function(frm){
-		$('.page-wrapper .page-content').find('.layout-side-section').css('display','none');
 		if(!frm.is_new() && frm.doc.docstatus < 2){
 			frm.add_custom_button(__('BOMs'), function(){
 				frappe.call({
@@ -1661,6 +1660,9 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 		frm.toggle_display('pcs_per_pack', frm.doc.is_pack > 0);
 	},
 	setup(frm) {
+		frm.set_query('item', function() {
+			return { query: "style_costing.queries.garment_items" };
+		});
 		frm.fields_dict['merchandiser'].get_query = function(doc) {
 			return {
                 query:

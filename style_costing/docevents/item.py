@@ -46,6 +46,9 @@ def get_item_sub_group(item_group):
 
 def validate(doc, event):
 	"""Refresh the item's QR code payload."""
+	# a variant belongs to the style its template was costed from
+	if doc.variant_of and not doc.get("style_master"):
+		doc.style_master = frappe.db.get_value("Item", doc.variant_of, "style_master")
 	doc.qr_code = get_qr_code(
 		"Item Code - {}\nItem Name - {}\nItem Group - {}\nHSN/SAC - {}".format(
 			doc.item_code, doc.item_name, doc.item_group, doc.get("gst_hsn_code") or ""

@@ -47,7 +47,7 @@ Group Category.
 
 ## What the app adds
 
-**62 DocTypes.** Style Master is the only one most users open; it is
+**60 DocTypes.** Style Master is the only one most users open; it is
 submittable and carries 112 fields across 10 tabs. Around 25 are masters
 (seasons, segments, cost heads, lab tests, ...), one is the settings page, and
 the rest are the child tables behind Style Master's grids. Six masters ship
@@ -69,8 +69,8 @@ Master. Costing Managers are notified when a style is marked Costed; its owner
 when it is approved.
 
 **BOM generation** — *Create → BOMs* on a Style Master drafts an ERPNext BOM for
-every garment Item whose *Style Master* field points at the style: the variants
-of a linked template, or a linked item with none. The per-garment quantity is
+the style's garment Item: each of its variants when it is a template, or the
+item itself when it has none. The per-garment quantity is
 the row's consumption (for trims, times pieces per garment), without extras,
 wastage or samples. Running it again refreshes the drafts; an item that already
 has a submitted BOM is left alone.
@@ -89,12 +89,15 @@ construction, GSM, composition, weave, trims attributes, item references and a
 generated QR code, plus custom fields on Brand, Item Group, Item Barcode and
 Item Supplier.
 
-**Style ↔ sales link** — a Style Master is not an Item, so nothing tied a style
-to ERPNext's Item-based sales flow. `Item.style_master` links a garment item to
-the style it was costed from (shown only when `item_group_category` is
-`Garment`, since fabric and trim items are consumed by many styles), and
+**Style ↔ Item link** — a style is costed for a garment Item: *Style Name* on
+Style Master is a link to Item (garment groups only, templates rather than
+variants), and *Style Category* is that item's Item Group. Saving the style
+sets `Item.style_master` on the item and its variants, and
 `Sales Order Item.style_master` fetches it from `item_code`, so an order line
-traces back to its style without duplicate entry.
+traces back to its style without duplicate entry. An item keeps the first
+style costed for it; an amended style takes over from the one it replaces.
+v13 used two masters of its own here, Product and Product Category, which
+duplicated Item and Item Group and have been removed.
 
 **Item naming override** — `StyleItem` derives the item code series from
 `Item Group.group_category`: `F-` fabric, `T-` trims, `G-` garment, `Y-` yarn,
@@ -118,7 +121,7 @@ style_costing/
 ├── patches/                        migration patches
 └── style_costing/
     ├── custom/                     Customize Form exports (Item, Brand, ...)
-    ├── doctype/                    62 DocTypes
+    ├── doctype/                    60 DocTypes
     ├── report/                     4 script reports
     ├── print_format/               Style Costing Sheet, Buyer Cost Sheet
     ├── dashboard_chart/, number_card/

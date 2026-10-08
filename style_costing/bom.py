@@ -37,15 +37,20 @@ def style_materials(style) -> dict[str, frappe._dict]:
 	return materials
 
 
-def garment_items(style_name: str) -> list[str]:
-	"""Items made from this style: the variants of a linked template, or a
-	linked item that has none. A template itself gets no BOM."""
-	return frappe.get_all(
-		"Item",
-		filters={"style_master": style_name, "has_variants": 0, "disabled": 0},
-		pluck="name",
-		order_by="name",
-	)
+def garment_items(style) -> list[str]:
+	"""Items made from this style: its Item, or that Item's variants when it is
+	a template, plus any Item pointed at the style by hand. A template itself
+	gets no BOM."""
+	item = frappe.qb.DocType("Item")
+	made_from = item.style_master == style.name
+	if style.item:
+		made_from = made_from | (item.name == style.item) | (item.variant_of == style.item)
+	return (
+		frappe.qb.from_(item)
+		.select(item.name)
+		.where(made_from & (item.has_variants == 0) & (item.disabled == 0))
+		.orderby(item.name)
+	).run(pluck=True)
 
 
 @frappe.whitelist()
@@ -56,10 +61,10 @@ def generate_boms(style: str):
 	doc.check_permission("read")
 	frappe.has_permission("BOM", "create", throw=True)
 
-	items = garment_items(doc.name)
+	items = garment_items(doc)
 	if not items:
 		frappe.throw(
-			_("No garment Item is linked to this style. Set Style Master on the Item (or its variants) first.")
+			_("This style has no garment Item to make a BOM for. Set Style Name on the style first.")
 		)
 	materials = style_materials(doc)
 	if not materials:

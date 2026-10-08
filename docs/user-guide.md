@@ -106,14 +106,15 @@ buyers, quotations and BOMs.
 ### Step 4 — Fill in your masters
 
 Under **Styling → Masters** you will find short lists the style form picks
-from: Product, Season, Segment, Size Series and others. Seasons,
+from: Season, Segment, Size Series and others. Seasons,
 segments, cost heads, cost types, production processes and value additions
 arrive with a few generic entries. Add your own as you need them.
 
 Before your first style you need at least:
 
 - a **Buyer** (ERPNext *Customer*),
-- a **Product** (the kind of garment, for example "Men's Shirt"),
+- the **garment Item** you are costing (for example "Men's Shirt"), in an Item
+  Group marked *Garment*,
 - some **fabric and trim items** in tagged Item Groups,
 - if you want to record who handles each style, your merchandisers as
   **Employees** in a Department named **Merchandising**.
@@ -121,8 +122,8 @@ Before your first style you need at least:
 ### Want to try it first? Use the demo data
 
 In Style Costing Settings click **Install Demo Data**. You get three
-merchandisers, three tagged item groups, a fabric, a button, a buyer and a
-product — enough to build a style straight away.
+merchandisers, three tagged item groups, a fabric, a button, a garment item and
+a buyer — enough to build a style straight away.
 
 When you are done, **Remove Demo Data** deletes exactly those records. Anything
 you have since used on a real document is kept, and you are told which.
@@ -141,7 +142,8 @@ Fill in who and what the style is for.
 | Field | What to enter |
 |---|---|
 | **Buyer** | The customer. |
-| **Style Name** *(required)* | The product, for example "Men's Shirt". |
+| **Style Name** *(required)* | The garment **Item** you are costing, for example "Men's Shirt". Only items in an Item Group marked *Garment* are listed. If the garment comes in sizes or colours, pick the template item, not a variant. Create the item first if it does not exist yet. |
+| **Style Category** | Filled in for you: the Item Group of that item. |
 | **Buyer Style Number** *(required)* | The buyer's own reference for the design. |
 | **Company** | Your company. Filled in for you. |
 | **Merchandiser Code** | Who is handling the style. The list shows **Employees whose Department is named "Merchandising"**, so your merchandisers must be set up as employees in that department. |
@@ -251,21 +253,21 @@ styles in the **Styles** table. In this app a quotation lists styles, not items.
 
 ## 5. When the order comes in
 
-### Link the garment item to the style
+### The garment item is already linked
 
-So that orders can be traced back to the costing, tell ERPNext which item was
-costed from which style:
+You chose the garment Item as the **Style Name** when you created the style.
+The app has marked that item, and every size or colour variant of it, with the
+style. So every Sales Order line for the item shows which style it was costed
+from, with nothing more to enter.
 
-1. Open the garment **Item** (it must be in an Item Group marked *Garment*).
-2. Set its **Style Master** field to the style.
-3. If the item has sizes or colours as variants, set it on each variant.
-
-From then on, every Sales Order line for that item shows its style.
+If the same item is costed again later, for another buyer or season, it stays
+linked to the first style. To move it, change **Style Master** on the Item.
 
 ### Create the production BOMs
 
 On the style, click **Create → BOMs**. The app drafts an ERPNext BOM for every
-garment item linked to the style, using the fabric and trims and their
+garment item of the style — the item itself, or each of its variants — using
+the fabric and trims and their
 consumption per garment.
 
 - The BOMs are **drafts**. Someone in production reviews and submits them.
@@ -326,9 +328,9 @@ The approval workflow is on. Use the workflow button at the top right instead.
 **A style I imported has no cost.**
 Costs are worked out when the style is open on screen. Open it and click Save.
 
-**"Create → BOMs" says no garment item is linked.**
-Set the **Style Master** field on the garment item first. See
-[Link the garment item](#link-the-garment-item-to-the-style).
+**The Style Name list is empty.**
+It lists Items in an Item Group whose Group Category is *Garment*. Create the
+garment item in such a group first.
 
 **The settings page warns about another app and the Item controller.**
 Two installed apps both want to change how items behave, and ERPNext only runs

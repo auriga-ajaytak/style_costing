@@ -45,6 +45,27 @@ def _items_by_group_category(category, txt, start, page_len, names=None):
 
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
+def garment_items(doctype, txt, searchfield, start, page_len, filters):
+	"""Garment Items a style can be costed for: templates and items without
+	variants. A variant follows its template."""
+	item = DocType("Item")
+	item_group = DocType("Item Group")
+	return (
+		frappe.qb.from_(item)
+		.inner_join(item_group)
+		.on(item.item_group == item_group.name)
+		.select(item.name, item.item_name, item_group.name)
+		.where(item_group.group_category == "Garment")
+		.where(item.variant_of.isnull() | (item.variant_of == ""))
+		.where(item.disabled == 0)
+		.where(item.name.like(f"%{txt}%") | item.item_name.like(f"%{txt}%"))
+		.limit(page_len)
+		.offset(start)
+	).run()
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
 def fabric_item_group_wise_items(doctype, txt, searchfield, start, page_len, filters):
 	return _items_by_group_category("Fabric", txt, start, page_len)
 
