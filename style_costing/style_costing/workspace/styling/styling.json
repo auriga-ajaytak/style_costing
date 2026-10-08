@@ -30,7 +30,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Style Master",
-   "link_count": 5,
+   "link_count": 3,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -52,17 +52,6 @@
    "label": "Operation Bulletin",
    "link_count": 0,
    "link_to": "Operation Bulletin",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "dependencies": "",
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Design And Marker",
-   "link_count": 0,
-   "link_to": "Design And Marker",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"

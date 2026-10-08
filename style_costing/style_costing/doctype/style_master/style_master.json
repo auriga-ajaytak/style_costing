@@ -45,8 +45,9 @@
   "size_series",
   "column_break_structure_2",
   "is_set",
-  "is_panel",
   "column_break_structure_3",
+  "is_panel",
+  "column_break_structure_4",
   "is_pack",
   "pcs_per_pack",
   "panel_details",
@@ -149,8 +150,7 @@
   {
    "fieldname": "style_details",
    "fieldtype": "Section Break",
-   "in_preview": 1,
-   "label": "Style"
+   "in_preview": 1
   },
   {
    "fieldname": "panel_details",
@@ -231,8 +231,7 @@
   },
   {
    "fieldname": "techpack_details",
-   "fieldtype": "Section Break",
-   "label": "Tech Pack Details"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "techpack_preview",
@@ -435,7 +434,7 @@
    "fieldname": "attach_design",
    "fieldtype": "Attach Image",
    "in_preview": 1,
-   "label": "Attach Image 1 Design"
+   "label": "Front Design"
   },
   {
    "fieldname": "marker_details_section",
@@ -558,7 +557,7 @@
    "fieldname": "attach_back_design",
    "fieldtype": "Attach Image",
    "in_preview": 1,
-   "label": "Attach Image 2 Design"
+   "label": "Back Design"
   },
   {
    "fieldname": "column_break_34",
@@ -799,6 +798,10 @@
   },
   {
    "fieldname": "column_break_structure_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_structure_4",
    "fieldtype": "Column Break"
   }
  ],

@@ -8,7 +8,7 @@
  "field_order": [
   "techpack_file",
   "special_instructions",
-  "view_data"
+  "view_file"
  ],
  "fields": [
   {
@@ -19,14 +19,13 @@
   },
   {
    "fieldname": "special_instructions",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
    "label": "Special Instructions"
   },
   {
-   "default": "0",
-   "fieldname": "view_data",
-   "fieldtype": "Check",
+   "fieldname": "view_file",
+   "fieldtype": "Button",
    "in_list_view": 1,
    "label": "View"
   }

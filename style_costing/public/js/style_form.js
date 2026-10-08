@@ -67,8 +67,6 @@ style_costing.style_form = {
 		if(typeof frm.is_new() == 'undefined' && frm.is_new() == 'undefined'){			
 			if(frm.doc.techpack_table.length > 0){
 				let techpackData = frm.doc.techpack_table[frm.doc.techpack_table.length-1];
-				techpackData.view_data = 1;
-				frm.refresh_field('techpack_table');
 				loadTechpack(frm, techpackData);
 			}
 		}
@@ -738,7 +736,7 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
                             row_data['fabric_data_name'] = doc.item_name;
                         if(cell.column.id == 'trim_name')
                             row_data['trim_data_name'] = doc.item_name;
-                        row_data['category'] = doc.item_sub_group;
+                        row_data['category'] = doc.item_group;
                         row_data['hs_code'] = doc.gst_hsn_code;
                         row_data['description'] = doc.composition;
                         row_data['unit'] = doc.stock_uom;
@@ -1114,7 +1112,7 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 			fabric_name:function(frm, cdt, cdn){
 			  var row = locals[cdt][cdn];
 			  frappe.db.get_doc('Item', row.fabric_name).then(doc=>{
-				frappe.model.set_value(cdt, cdn, 'category', doc.item_sub_group);
+				frappe.model.set_value(cdt, cdn, 'category', doc.item_group);
 				frappe.model.set_value(cdt, cdn, 'hs_code', doc.gst_hsn_code);
 				frappe.model.set_value(cdt, cdn, 'description', doc.composition);
 				frappe.model.set_value(cdt, cdn, 'unit', doc.stock_uom);
@@ -1213,16 +1211,20 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 		  
 
 		  style_costing.on_child('Marker Table',{
-			view_data:function(frm, cdt, cdn){
+			// Same as the Techpack table: View shows that row's file below the
+			// table, and pressing it again on the same row closes the preview.
+			view_file:function(frm, cdt, cdn){
 				let row = locals[cdt][cdn];
-				if(frm.doc.marker_table.length > 1 && row.view_data > 0){
-					frm.doc.marker_table.forEach(function(datarow){
-						if(datarow.view_data == 1 && datarow.idx !== row.idx){
-							datarow.view_data = 0;
-							frm.refresh_field('marker_table');
-						}
-					});
+				if(!row.marker){
+					frappe.show_alert({message: __('Attach a file to this row first.'), indicator: 'orange'});
+					return;
 				}
+				if(frm.marker_shown === row.name){
+					frm.marker_shown = null;
+					loadMarkerView(frm, null);
+					return;
+				}
+				frm.marker_shown = row.name;
 				loadMarkerView(frm, row);
 			},
 		  });
@@ -1244,19 +1246,20 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 				// loadTechpack(frm, row);		  
 			    // cur_frm.refresh_field('techpack_table');
 			},
-			view_data:function(frm, cdt, cdn){
+			// The View button shows that row's file below the table; pressing
+			// it again on the same row closes the preview.
+			view_file:function(frm, cdt, cdn){
 				let row = locals[cdt][cdn];
-				// frm.trigger('loadTechpack');	
-				if(frm.doc.techpack_table.length > 1 && row.view_data > 0){
-					frm.doc.techpack_table.forEach(function(datarow){
-						if(datarow.view_data == 1 && datarow.idx !== row.idx){
-							datarow.view_data = 0;
-							frm.refresh_field('techpack_table');
-						}
-						// console.log(datarow);
-					});
+				if(!row.techpack_file){
+					frappe.show_alert({message: __('Attach a file to this row first.'), indicator: 'orange'});
+					return;
 				}
-				// if(row.view_data > 0)
+				if(frm.techpack_shown === row.name){
+					frm.techpack_shown = null;
+					loadTechpack(frm, null);
+					return;
+				}
+				frm.techpack_shown = row.name;
 				loadTechpack(frm, row);
 			},
 		  });
@@ -1273,7 +1276,7 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 			trim_name:function(frm, cdt, cdn){
 			  var row = locals[cdt][cdn];
 			  frappe.db.get_doc('Item', row.trim_name).then(doc=>{
-				frappe.model.set_value(cdt, cdn, 'category', doc.item_sub_group);
+				frappe.model.set_value(cdt, cdn, 'category', doc.item_group);
 				frappe.model.set_value(cdt, cdn, 'hs_code', doc.gst_hsn_code);
 				frappe.model.set_value(cdt, cdn, 'description', doc.composition);
 				frappe.model.set_value(cdt, cdn, 'unit', doc.stock_uom);
@@ -1668,14 +1671,7 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
                 query:
                     "style_costing.queries.get_merchandisers",
             }; 
-			},
-		frm.fields_dict['brand_name'].get_query = function(doc) {
-			return {
-				filters: {
-				"is_customer_brand": true
-				}
-			}
-			}
+			};
 	},
 	sales_price_our:function(frm){
 		frm.getCostingTable(frm);
@@ -1859,41 +1855,21 @@ frm.calulateTrimsTableTotalRowQty = (row) => {
 
 
 function loadMarkerView(frm, markerrow){
-	let wrapper = frm.get_field("marker_preview").$wrapper;
-	let htmlData = '';
-	if(typeof frm.doc.marker_table !== 'undefined' && frm.doc.marker_table !== 'undefined'){
-		if(frm.doc.marker_table.length > 0){
-			if(typeof markerrow == 'undefined' || markerrow == ''){
-				markerrow = frm.doc.marker_table[frm.doc.marker_table.length-1];
-			}
+	showFilePreview(frm.get_field("marker_preview").$wrapper, markerrow && markerrow.marker);
+}
 
-			if(typeof markerrow !== 'undefined' && typeof markerrow.marker !== 'undefined' && markerrow.view_data > 0){
-				let fileurl = markerrow.marker;
-				htmlData = '<iframe src="'+fileurl+'" width="800" height="600"></iframe';
-			}
-		}
+// Show an attached file in a frame, or clear the preview when there is none.
+function showFilePreview(wrapper, fileurl){
+	wrapper.empty();
+	if(fileurl){
+		$('<iframe width="100%" height="600" style="border: 1px solid var(--border-color); border-radius: var(--border-radius);"></iframe>')
+			.attr('src', fileurl)
+			.appendTo(wrapper);
 	}
-	wrapper.html(htmlData);				
-	frm.refresh_field('marker_preview');
 }
 
 function loadTechpack(frm, techpackrow){
-	let wrapper = frm.get_field("techpack_preview").$wrapper;
-	let htmlData = '';
-	if(typeof frm.doc.techpack_table !== 'undefined' && frm.doc.techpack_table !== 'undefined'){
-		if(frm.doc.techpack_table.length > 0){
-			if(typeof techpackrow == 'undefined' || techpackrow == ''){
-				techpackrow = frm.doc.techpack_table[frm.doc.techpack_table.length-1];
-			}
-
-			if(typeof techpackrow !== 'undefined' && typeof techpackrow.techpack_file !== 'undefined' && techpackrow.view_data > 0){			
-				let fileurl = techpackrow.techpack_file;
-				htmlData = '<iframe src="'+fileurl+'" width="800" height="600"></iframe';
-			}
-		}
-	}
-	wrapper.html(htmlData);				
-	frm.refresh_field('techpack_preview');
+	showFilePreview(frm.get_field("techpack_preview").$wrapper, techpackrow && techpackrow.techpack_file);
 }
 function calculateAverageSize(frm, cdt,cdn){
 	let avgCons = 0;
